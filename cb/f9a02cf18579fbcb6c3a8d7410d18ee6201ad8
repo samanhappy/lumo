@@ -1,0 +1,59 @@
+.gitignore
+  s_109db4c615ffc0::t_11c4fcc878e1c6 1-2
+index.html
+  s_109db4c615ffc0::t_044eddb89887c3 1-5
+package-lock.json
+  s_109db4c615ffc0::t_f7b9b80eb8787d 1-129
+package.json
+  s_109db4c615ffc0::t_a07360451c93b8 1-14
+public/ocr/README.md
+  s_109db4c615ffc0::t_273af74a765e52 1-11
+server.js
+  s_109db4c615ffc0::t_c4a160c43c74a9 1-16
+src/learning-apps/irregular-verbs/app.js
+  s_109db4c615ffc0::t_dc0ec3e92b13cf 1-80
+src/learning-apps/irregular-verbs/domain.js
+  s_109db4c615ffc0::t_72e49e68c3c8fb 1-18
+src/learning-apps/irregular-verbs/repository.js
+  s_109db4c615ffc0::t_fc7affcead3e92 1-8
+src/learning-apps/irregular-verbs/words.js
+  s_109db4c615ffc0::t_2e947442d5a04a 1-500
+src/main.js
+  s_109db4c615ffc0::t_0815d0b8a942ef 1-22
+src/platform/learning-apps/registry.js
+  s_109db4c615ffc0::t_f82f2b32045f29 1-14
+src/platform/student.js
+  s_109db4c615ffc0::t_6e0aafd4c39424 1
+src/platform/tasks/model.js
+  s_109db4c615ffc0::t_8fa3e641090149 1-44
+src/platform/tasks/page.js
+  s_109db4c615ffc0::t_7db33b275af1d2 1-44
+src/platform/tasks/photo-import.js
+  s_109db4c615ffc0::t_cf20e46f9b2c68 1-105
+src/storage.js
+  s_109db4c615ffc0::t_7cb5d11a2a0ddb 1-9
+src/styles.css
+  s_109db4c615ffc0::t_ffab5bd4feeec5 1-1731
+src/ui.js
+  s_109db4c615ffc0::t_f97972c0a60748 1-18
+tests/core.test.js
+  s_109db4c615ffc0::t_04e05128ec46ef 1-36
+tests/photo-import.test.js
+  s_109db4c615ffc0::t_7da5054ed17e79 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cbf9a02cf18579fbcb6c3a8d7410d18ee6201ad8",
+  "prompts": {},
+  "sessions": {
+    "s_109db4c615ffc0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11619-4deb-7741-a738-9e0383b83460",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
