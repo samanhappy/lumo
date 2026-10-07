@@ -26,11 +26,11 @@ test('all 84 words retain valid distractors and alternate spellings; mastery and
  mastery=updateMastery(mastery,false,'later');assert.equal(mastery.mastery_score,40);assert.equal(mastery.incorrect_count,1);
  assert.deepEqual(createDeck('wrong',{1:mastery}).map(w=>w.id),[1]);assert.equal(createDeck('choice',{}).length,10);assert.equal(createDeck('learn',{}).length,84);
 });
-test('sessions and summaries persist independently for each student; corrupt data and failed writes are handled',()=>{
+test('sessions and summaries persist independently for each student; corrupt data and failed writes are handled',async()=>{
  assert.equal(irregularVerbs.getSummary('a').estimatedMinutes,8);
- const session=irregularVerbs.start('a');assert.equal(session.deck.length,10);assert.equal(loadState('a').active.id,session.id);assert.equal(loadState('b').active,null);
+ const session=await irregularVerbs.start('a');assert.equal(session.deck.length,10);assert.equal(loadState('a').active.id,session.id);assert.equal(loadState('b').active,null);
  const state=emptyState();state.mastery[1]=updateMastery(null,false,'now');saveState('a',state);assert.match(irregularVerbs.getSummary('a').progressText,/1 个单词/);
- assert.throws(()=>irregularVerbs.start('b','wrong'));assert.throws(()=>irregularVerbs.start('b','bogus'));
+ await assert.rejects(()=>irregularVerbs.start('b','wrong'));await assert.rejects(()=>irregularVerbs.start('b','bogus'));
  memory.set('lumo:iv:c','{bad');assert.deepEqual(loadState('c'),emptyState());
- const original=localStorage.setItem;localStorage.setItem=()=>{throw new Error('quota')};assert.throws(()=>irregularVerbs.start('a'),/无法保存数据/);localStorage.setItem=original;assert.equal(loadState('a').active,null);
+ const original=localStorage.setItem;localStorage.setItem=()=>{throw new Error('quota')};await assert.rejects(()=>irregularVerbs.start('a'),/无法保存数据/);localStorage.setItem=original;assert.equal(loadState('a').active,null);
 });

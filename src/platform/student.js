@@ -1,1 +1,3 @@
-export const student = { id: 'local-student', name: '小雨', grade: '' };
+export const student = { id: '', name: '', grade: '' };
+export let user;
+export function setUser(value) { user = value; Object.assign(student, value.student); }

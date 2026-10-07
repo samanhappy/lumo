@@ -3,12 +3,9 @@ import { read, write } from '../../storage.js';
 export const learningApps = [{ id:'irregular-verbs', code:'irregular-verbs', name:'不规则过去式', icon:'AB', version:'1.0.0', enabled:true, app:irregularVerbs }];
 export function appSummary(entry, studentId) {
   const summary = entry.app.getSummary(studentId);
-  const relations = read('lumo:student_app', {});
-  const key = `${studentId}:${entry.id}`;
-  const next = { ...relations, [key]: { ...relations[key], student_id:studentId, app_id:entry.id, status:relations[key]?.status || 'ready', summary } };
-  write('lumo:student_app', next); return summary;
+  return summary;
 }
 export function markAppUsed(entry, studentId) {
   const relations = read('lumo:student_app', {}); const key=`${studentId}:${entry.id}`;
-  write('lumo:student_app', { ...relations, [key]: { ...relations[key], student_id:studentId, app_id:entry.id, last_used_at:new Date().toISOString(), status:'active' } });
+  return write('lumo:student_app', { ...relations, [key]: { ...relations[key], student_id:studentId, app_id:entry.id, last_used_at:new Date().toISOString(), status:'active', summary:entry.app.getSummary(studentId) } });
 }

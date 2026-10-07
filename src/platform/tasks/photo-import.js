@@ -88,7 +88,7 @@ export function photoImportDialog(root, { studentId, date, onImported }) {
     }
   }
   $('#camera-file').onchange = $('#photo-file').onchange = selectPhoto;
-  $('form').onsubmit = event => {
+  $('form').onsubmit = async event => {
     event.preventDefault();
     if (busy || save.disabled) return;
     error.textContent = '';
@@ -96,10 +96,12 @@ export function photoImportDialog(root, { studentId, date, onImported }) {
       const importDate = $('input[name=date]').value;
       const result = importHomework(loadTasks(), textarea.value, importDate, studentId);
       // Validate the entire batch first, then persist once: no partial imports on errors.
-      storeTasks(result.tasks);
+      busy = true; update();
+      await storeTasks(result.tasks);
       close();
       onImported(importDate);
       notify(`已导入 ${result.added} 项作业到 ${formatDate(importDate)}${result.skipped ? `，跳过 ${result.skipped} 项重复内容` : ''}。`);
     } catch (err) { error.textContent = err.message; }
+    finally { busy = false; update(); }
   };
 }
