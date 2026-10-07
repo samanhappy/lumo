@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
+    "deploy": "bash scripts/deploy.sh",
     "test": "node --test",
     "migrate:postgres": "node scripts/migrate-postgres.js"
   },
