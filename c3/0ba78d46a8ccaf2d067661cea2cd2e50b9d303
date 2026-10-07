@@ -1,0 +1,35 @@
+.env.example
+  s_231abdb08df4f5::t_5eccc7d64c6d3a 4-5
+tests/deploy.test.mjs
+  s_231abdb08df4f5::t_8959556476c82e 27
+  s_231abdb08df4f5::t_831e64888cc54e 1-26,28-40
+package.json
+  s_231abdb08df4f5::t_8b80e08aa6aa6a 9
+scripts/deploy.sh
+  s_231abdb08df4f5::t_ce8673834e3d5b 7
+  s_231abdb08df4f5::t_1e9f10498803e5 1-6,8-13,15-22,24-32,35-85
+  s_231abdb08df4f5::t_4ec3a9cf8a327c 14
+  s_231abdb08df4f5::t_5cce4893e9fa6d 23
+  s_231abdb08df4f5::t_69acc3e728cbbb 33-34
+compose.yaml
+  s_231abdb08df4f5::t_a64eb6dd54fa71 4
+README.md
+  s_231abdb08df4f5::t_a6b90e4ceeccff 108
+  s_231abdb08df4f5::t_4df9e935971959 85-107,109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c30ba78d46a8ccaf2d067661cea2cd2e50b9d303",
+  "prompts": {},
+  "sessions": {
+    "s_231abdb08df4f5": {
+      "agent_id": {
+        "tool": "github-copilot-cli",
+        "id": "d9f2ea63-6300-4195-b48c-178c40bed737",
+        "model": "unknown"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
