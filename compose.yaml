@@ -8,6 +8,12 @@ services:
       NODE_ENV: production
       PORT: 5173
       LUMO_USERS: ${LUMO_USERS:?Set LUMO_USERS in .env}
+      LUMO_AI_PROVIDER: ${LUMO_AI_PROVIDER:-deepseek}
+      LUMO_AI_MODEL: ${LUMO_AI_MODEL:-}
+      LUMO_VISION_PROVIDER: ${LUMO_VISION_PROVIDER:-openai}
+      LUMO_VISION_MODEL: ${LUMO_VISION_MODEL:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       PGHOST: postgres
       PGPORT: 5432

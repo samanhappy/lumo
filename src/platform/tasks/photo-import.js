@@ -15,7 +15,7 @@ export function photoImportDialog(root, { studentId, date, onImported }) {
       <input id="camera-file" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
       <input id="photo-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
     </div>
-    <p class="muted">照片仅在本机识别，不会上传。支持中英文印刷文字，手写内容请仔细核对。</p>
+    <p class="muted">选择图片后会上传至服务器，并发送给配置的模型服务识别。本应用不保存照片；手写内容和页码请仔细核对。</p>
     <div class="photo-review" hidden>
       <div class="photo-preview"><img alt="待识别的作业照片"></div>
       <label class="field">核对作业内容 <span class="muted">每行一项，可修改、删除或补充；标题和日期请移除。</span>
@@ -69,12 +69,14 @@ export function photoImportDialog(root, { studentId, date, onImported }) {
     $('.photo-review').hidden = false;
     status.textContent = '正在准备识别…';
     try {
-      const text = await recognizePhoto(file, {
+      const result = await recognizePhoto(file, {
         signal: controller.signal,
         onProgress: message => { if (dialog.isConnected) status.textContent = message; }
       });
       if (!dialog.isConnected) return;
+      const { text, warnings = [] } = result;
       textarea.value = text;
+      error.textContent = warnings.length ? '请核对：' + warnings.join('；') : '';
       status.textContent = text ? '识别完成，请核对每一项作业后再导入。' : '没有识别到文字。可以重新拍照，也可以在上方手动填写。';
     } catch (err) {
       if (!dialog.isConnected || err.name === 'AbortError') return;

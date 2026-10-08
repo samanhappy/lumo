@@ -30,17 +30,17 @@ npm test
 
 练习优先抽取掌握度低的 10 个词；错题重练只抽取最近一次答错的词。答对掌握度 +25，答错 -35，范围 0–100，达到 75 计为已掌握。词卡浏览不提升掌握度。答案提交后立即持久化，未完成会话可恢复；结果为实际练习统计，无 AI 生成。
 
-保留 `过去式探险.html` 作为原始参考。原生模块实现，无新增框架或构建工具，PostgreSQL 通过 pg 驱动接入；没有实现 v0.1 排除的语音、AI、积分商城等功能。
+保留 `过去式探险.html` 作为原始参考。原生模块实现，无新增框架或构建工具，PostgreSQL 通过 pg 驱动接入；已增加 AI 学习助手和图片识别；语音和积分商城尚未实现。
 
 ## 作业拍照导入
 
-在今日事项中点击「拍照导入」，拍照或选择 JPG / PNG / WebP 图片（最大 20 MB）。照片在浏览器内用 Tesseract.js 6.0.1 识别，不上传服务器，也不保存照片。OCR 引擎和中英文模型全部从本项目加载，无需云服务密钥。
+在今日事项中点击「拍照导入」，拍照或选择 JPG / PNG / WebP 图片（最大 20 MB）。浏览器将图片最长边缩至 2400 像素并转换为 JPEG（处理后最大 3 MB），通过已登录的后端接口交给 pi 视觉模型提取作业。选择图片前会提示上传和模型处理方式。本应用不将图片写入数据库或文件；模型服务的数据保留策略由对应供应商决定。需要配置视觉模型和 API 密钥。
 
 识别后对照图片核对文本，每行一项，可修改、删除或补充，移除无关标题和日期。确认后批量保存为 `HOMEWORK`，日期默认是当前查看的日期，也可修改。同一学生、同一天的相同标题会跳过；校验或保存失败时不会部分导入。取消或关闭会终止识别，不会添加事项。
 
-模型适合清晰的中英文印刷文字；手写、模糊、倾斜照片的准确率有限，导入前需要核对。移动端拍照使用系统文件选择器的后置摄像头提示，桌面浏览器通常会打开文件选择器；尚未在真实 iPad / 小米 Pad 上验证。HEIC 需先转换为 JPG。
+模型按科目提取作业，过滤表格标题、日期、水印和勾号，不会根据勾号自动标记完成。无法确认的文字用【待核对】标记，并展示疑点；手写内容和页码仍需人工核对。移动端拍照使用系统文件选择器的后置摄像头提示，桌面浏览器通常会打开文件选择器；尚未在真实 iPad / 小米 Pad 上验证。HEIC 需先转换为 JPG。
 
-`src/platform/tasks/ocr.js` 负责图像读取和识别；`photo-import.js` 负责预览与核对；批量导入复用事项数据校验和存储。Learning App 没有引入 OCR 依赖。
+`src/platform/tasks/ocr.js` 负责图像读取和识别；`photo-import.js` 负责预览与核对；批量导入复用事项数据校验和存储。Learning App 不依赖图片模型。
 
 ## PostgreSQL 与 Docker Compose
 
@@ -124,3 +124,23 @@ TEST_DATABASE_URL=postgresql://user:password@localhost:5432/lumo_test npm test
 本地 `npm run dev` 无配置时提供 `student / student123` 和 `parent / parent123`，仅用于开发。自定义账号可使用 `LUMO_USERS='[...]' npm run dev`；普通启动不会自动读取 `.env`，Docker Compose 会读取。正式部署必须修改示例密码。密码使用 scrypt 校验，浏览器只持有 HttpOnly、SameSite=Strict 会话 cookie，会话 12 小时有效，退出立即失效；登录失败会限速。HTTPS 部署设置 `COOKIE_SECURE=true`。
 
 会话保存在服务进程内，重启需要重新登录；当前 Compose 单个 app 实例适用。账号配置更新后重启 app 即生效：`docker compose up -d --force-recreate app`。无注册、找回密码或账户管理界面。
+
+### pi 学习助手
+
+学习助手入口为 `/chat`。后端使用固定版本的 `@earendil-works/pi-ai` 和 `@earendil-works/pi-agent-core`，支持多轮文本咨询、流式回答、停止生成，以及查询当前登录账号关联学生指定日期的作业。工具只读，无法修改作业。图片导入使用单独配置的 pi 视觉模型。
+
+配置 `LUMO_AI_PROVIDER`（`deepseek` 或 `openai`）、`LUMO_AI_MODEL`（安装版本 pi 模型目录中的 ID）和对应的 `DEEPSEEK_API_KEY` / `OPENAI_API_KEY`。缺少配置时助手返回明确提示，其他功能正常使用。普通 `npm run dev` 不自动读取 `.env`；本地可用 `node --env-file=.env server.js`，Docker Compose 已传递这些配置。密钥仅由后端读取，勿提交真实密钥。
+
+Node.js 最低版本为 22.19。可查看支持的模型 ID：
+
+```sh
+node --input-type=module -e "import {createModels} from '@earendil-works/pi-ai'; import {deepseekProvider} from '@earendil-works/pi-ai/providers/deepseek'; const m=createModels();m.setProvider(deepseekProvider());console.log(m.getModels().map(x=>x.id))"
+```
+
+对话和查询出的作业会发送到配置的模型服务。页面已提示数据处理方式。对话仅在当前页面内保留，不持久化；离开页面后清空。历史最多 20 条、32000 字，每次提问最多 4000 字；每次运行最多 5 个模型回合、60 秒，最多 8 个并发请求，每个账号最多一个请求。前端使用纯文本展示模型输出。当前未加入长期记忆、写入工具。
+
+### 图片模型配置
+
+设置 LUMO_VISION_PROVIDER=openai 和 LUMO_VISION_MODEL（pi 目录中支持 image 输入的模型 ID），以及 OPENAI_API_KEY。视觉模型与聊天模型独立配置；deepseek 也可选择，但必须支持 image 输入，否则拒绝调用。Docker Compose 已传递这些变量；普通开发启动可用 `node --env-file=.env server.js`。
+
+图片接口为 POST /api/homework/recognize，要求登录、同源 JSON 请求并校验图片类型与文件签名。图片仅作为数据传给模型，没有业务写入工具；返回条目须符合批量导入限制。识别最长 60 秒，同账号一个请求、总计最多四个并发；取消会中止模型请求。识别失败保留预览并允许手动填写，不会悄悄回退到本地 OCR 或保存部分作业。

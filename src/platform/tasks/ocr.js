@@ -29,40 +29,21 @@ async function photoCanvas(file) {
 
 export async function recognizePhoto(file, { signal, onProgress = () => {} } = {}) {
   validatePhoto(file);
-  let worker, canvas, timer, abort, stopped = false;
-  const stop = () => worker?.terminate().catch(() => {});
-  const interrupted = new Promise((_, reject) => {
-    abort = () => { stopped = true; stop(); reject(new DOMException('已取消识别', 'AbortError')); };
-    if (signal?.aborted) abort();
-    else signal?.addEventListener('abort', abort, { once: true });
-    timer = setTimeout(() => { stopped = true; stop(); reject(new Error('识别用时过长，请裁剪到作业区域后重试。')); }, 120_000);
-  });
-  const recognition = async () => {
-    if (signal?.aborted) throw new DOMException('已取消识别', 'AbortError');
+  if (signal?.aborted) throw new DOMException('已取消识别', 'AbortError');
+  let canvas;
+  try {
+    onProgress('正在准备图片…');
     canvas = await photoCanvas(file);
-    if (stopped) { canvas.width = canvas.height = 0; throw new DOMException('已取消识别', 'AbortError'); }
-    const { default: Tesseract } = await import('/node_modules/tesseract.js/dist/tesseract.esm.min.js');
-    if (stopped) throw new DOMException('已取消识别', 'AbortError');
-    worker = await Tesseract.createWorker(['chi_sim', 'eng'], 1, {
-      workerPath: '/node_modules/tesseract.js/dist/worker.min.js',
-      corePath: '/node_modules/tesseract.js-core',
-      langPath: '/public/ocr',
-      workerBlobURL: false,
-      logger: ({ status, progress }) => onProgress(status === 'recognizing text'
-        ? `正在识别文字… ${Math.round(progress * 100)}%` : '正在准备识别…'),
-      errorHandler: () => {}
+    const data = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+    if (data.length > 4 * 1024 * 1024) throw new Error('处理后的图片超过 3 MB，请裁剪到作业区域后重试。');
+    if (signal?.aborted) throw new DOMException('已取消识别', 'AbortError');
+    onProgress('正在使用模型识别作业…');
+    const response = await fetch('/api/homework/recognize', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mimeType: 'image/jpeg', data }), signal
     });
-    if (stopped) { await worker.terminate(); throw new DOMException('已取消识别', 'AbortError'); }
-    await worker.setParameters({ tessedit_pageseg_mode: '3' });
-    const { data } = await worker.recognize(canvas);
-    return data.text.replace(/([\p{Script=Han}])[ \t]+(?=[\p{Script=Han}])/gu, '$1').trim();
-  };
-  try { return await Promise.race([recognition(), interrupted]); }
-  finally {
-    stopped = true;
-    clearTimeout(timer);
-    signal?.removeEventListener('abort', abort);
-    await stop();
-    if (canvas) { canvas.width = 0; canvas.height = 0; }
-  }
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || '图片识别失败，请重试。');
+    return result;
+  } finally { if (canvas) canvas.width = canvas.height = 0; }
 }

@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { createChatService, validateChat, createPhotoService } from './ai.js';
 import { readFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +16,8 @@ for (const key of ['lumo:daily_task','lumo:student_app','lumo:iv:local-student']
   imported[`student:local-student:${key}`] = value;
 }
 if (Object.keys(imported).length) await database.migrate(imported);
+const chat = createChatService({ database });
+const recognizeHomeworkPhoto = createPhotoService();
 const root = fileURLToPath(new URL('.', import.meta.url));
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.wasm': 'application/wasm' };
 const server = http.createServer(async (req, res) => {
@@ -29,11 +32,40 @@ const server = http.createServer(async (req, res) => {
         if (req.method === 'GET' && pathname === '/api/auth/me') { res.end(JSON.stringify(auth.user(req))); return; }
         const user = pathname === '/api/auth/login' ? null : auth.user(req);
         if (req.method === 'GET' && pathname === '/api/storage') { res.end(JSON.stringify(await studentSnapshot(database, user))); return; }
-        if (req.method !== 'POST' || !['/api/storage', '/api/storage/migrate', '/api/auth/login', '/api/auth/logout'].includes(pathname)) { res.writeHead(404).end(JSON.stringify({ error: '接口不存在。' })); return; }
+        if (req.method !== 'POST' || !['/api/storage', '/api/storage/migrate', '/api/auth/login', '/api/auth/logout', '/api/chat', '/api/homework/recognize'].includes(pathname)) { res.writeHead(404).end(JSON.stringify({ error: '接口不存在。' })); return; }
         if (!req.headers['content-type']?.startsWith('application/json')) throw Object.assign(new Error('请使用 JSON 数据。'), { status: 415 });
         const chunks = []; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 5 * 1024 * 1024) throw Object.assign(new Error('数据超过 5 MB，请减少记录。'), { status: 413 }); chunks.push(chunk); }
         let input; try { input = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw Object.assign(new Error('无效的 JSON。'), { status: 400 }); }
+        if (pathname === '/api/homework/recognize') {
+          const controller = new AbortController();
+          const disconnect = () => { if (!res.writableEnded) controller.abort(); };
+          res.on('close', disconnect);
+          try {
+            const result = await recognizeHomeworkPhoto(input, user, { signal: controller.signal });
+            if (!res.destroyed) res.end(JSON.stringify(result));
+          } finally { res.off('close', disconnect); }
+          return;
+        }
+        if (pathname === '/api/chat') {
+          validateChat(input);
+          const controller = new AbortController();
+          const disconnect = () => { if (!res.writableEnded) controller.abort(); };
+          res.on('close', disconnect);
+          const send = event => {
+            if (res.destroyed) return;
+            if (!res.headersSent) res.writeHead(200, { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store' });
+            res.write(JSON.stringify(event) + '\n');
+          };
+          try {
+            await chat(input, user, { signal: controller.signal, onText: text => send({ type: 'text', text }) });
+            send({ type: 'done' });
+          } catch (error) {
+            if (!res.headersSent) throw error;
+            send({ type: 'error', error: error.status ? error.message : '学习助手暂时不可用，请重试。' });
+          } finally { res.off('close', disconnect); }
+          res.end(); return;
+        }
         const cookie = token => `lumo_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${token ? 43200 : 0}${process.env.COOKIE_SECURE === 'true' ? '; Secure' : ''}`;
         if (pathname === '/api/auth/login') { const login = await auth.login(input, req.socket.remoteAddress); res.setHeader('Set-Cookie', cookie(login.token)); res.end(JSON.stringify(login.user)); return; }
         if (pathname === '/api/auth/logout') { auth.logout(req); res.setHeader('Set-Cookie', cookie('')); res.end('{}'); return; }
@@ -48,7 +80,7 @@ const server = http.createServer(async (req, res) => {
       } catch (error) { res.writeHead(error.status || 500).end(JSON.stringify({ error: error.status ? error.message : '数据库保存失败，请重试。' })); }
       return;
     }
-    if (!(pathname === '/' || pathname === '/index.html' || pathname === '/today' || pathname === '/login' || pathname.startsWith('/apps/') || pathname.startsWith('/src/') || pathname.startsWith('/public/ocr/') || pathname.startsWith('/node_modules/')) || pathname.includes('.sqlite')) { res.writeHead(403).end(); return; }
+    if (!(pathname === '/' || pathname === '/index.html' || pathname === '/today' || pathname === '/chat' || pathname === '/login' || pathname.startsWith('/apps/') || pathname.startsWith('/src/') || pathname.startsWith('/public/ocr/') || pathname.startsWith('/node_modules/')) || pathname.includes('.sqlite')) { res.writeHead(403).end(); return; }
     const path = resolve(root, '.' + pathname);
     if (pathname.includes('..') || (path !== resolve(root) && !path.startsWith(root.endsWith(sep) ? root : root + sep))) { res.writeHead(403).end(); return; }
     const file = extname(pathname) ? path : resolve(root, 'index.html');

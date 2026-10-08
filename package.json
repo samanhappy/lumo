@@ -11,10 +11,12 @@
     "migrate:postgres": "node scripts/migrate-postgres.js"
   },
   "dependencies": {
+    "@earendil-works/pi-agent-core": "1.1.0",
+    "@earendil-works/pi-ai": "1.1.0",
     "pg": "8.23.1",
     "tesseract.js": "6.0.1"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=22.19.0"
   }
 }
