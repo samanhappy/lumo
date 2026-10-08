@@ -52,7 +52,7 @@ test('text-only models and missing vision configuration fail before calling the 
   const faux=fauxProvider({provider:'openai',models:[{id:'text-only',input:['text']}]});
   const models=createModels(); models.setProvider(faux.provider);
   const recognize=createPhotoService({models,env:{LUMO_VISION_MODEL:'text-only',OPENAI_API_KEY:'test'}});
-  await assert.rejects(recognize(photoInput,user),/不支持图片/);
+  await assert.rejects(recognize(photoInput,user),{status:503,message:'图片识别暂时不可用，可手动填写或稍后重试。'});
   await assert.rejects(createPhotoService({env:{}})(photoInput,user),{status:503});
   assert.equal(faux.state.callCount,0);
 });
@@ -66,4 +66,19 @@ test('canceling image recognition releases the per-account concurrency slot',asy
   await assert.rejects(recognize(photoInput,user),{status:429});
   controller.abort();await assert.rejects(run,{status:499});
   const next=new AbortController();const retry=recognize(photoInput,user,{signal:next.signal});next.abort();await assert.rejects(retry,{status:499});
+});
+test('public chat configuration errors give users an actionable service message',async()=>{
+  await assert.rejects(createChatService({database,env:{}})({message:'你好'},user),{status:503,message:'学习助手暂未开放，请稍后再试。'});
+});
+test('photo lines display the subject once without removing subject mentions inside the assignment',()=>{
+  assert.deepEqual(parseHomeworkPhoto(JSON.stringify({items:['科学 科学练习册 P3','数学 计算数学题','英语课文背诵 Unit 2'],warnings:[]})),{text:'科学练习册 P3\n数学 计算数学题\n英语课文背诵 Unit 2',warnings:[]});
+});
+test('chat accepts a completed fifth model turn but never requests a sixth turn',async()=>{
+  const faux=fauxProvider({provider:'deepseek',models:[{id:'limit-test'}]}); const models=createModels();models.setProvider(faux.provider);
+  const step=()=>fauxAssistantMessage(fauxToolCall('list_homework',{date:'2026-10-08'}),{stopReason:'toolUse'});
+  const chat=createChatService({database,models,env:{LUMO_AI_MODEL:'limit-test',DEEPSEEK_API_KEY:'test'}});
+  faux.setResponses([step(),step(),step(),step(),fauxAssistantMessage('数学 P39。')]);
+  await chat({message:'查询作业'},user); assert.equal(faux.state.callCount,5);
+  faux.setResponses([step(),step(),step(),step(),step(),fauxAssistantMessage('不应调用')]);
+  const before=faux.state.callCount; await assert.rejects(chat({message:'查询作业'},user),{status:422});assert.equal(faux.state.callCount-before,5);
 });

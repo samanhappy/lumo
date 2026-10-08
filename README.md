@@ -4,7 +4,7 @@
 
 ## 运行
 
-需要 Node.js 22.13 或更高版本（使用内置 SQLite，无需安装数据库服务）。
+需要 Node.js 22.19 或更高版本（使用内置 SQLite，无需安装数据库服务）。
 
 ```sh
 npm install
@@ -13,9 +13,11 @@ npm run dev
 npm test
 ```
 
-`PORT=3000 npm run dev` 可切换端口。四个页面支持直接打开、刷新和浏览器前进 / 后退：
+`PORT=3000 npm run dev` 可切换端口。以下页面支持直接打开、刷新和浏览器前进 / 后退：
 
+- `/login`
 - `/today`
+- `/chat`
 - `/apps/irregular-verbs`
 - `/apps/irregular-verbs/study`
 - `/apps/irregular-verbs/result`
