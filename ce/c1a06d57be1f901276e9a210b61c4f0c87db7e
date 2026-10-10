@@ -1,0 +1,25 @@
+scripts/deploy.sh
+  s_6dab54d0e9eeda::t_572bd198e08538 51
+  s_6dab54d0e9eeda::t_94504cb38b7dbb 16-17,29,42,45-46,49,52,54-57,59
+README.md
+  s_6dab54d0e9eeda::t_94504cb38b7dbb 106,108,110
+tests/deploy.test.mjs
+  s_6dab54d0e9eeda::t_c7379c9f28ccd2 3,14-17,20,28,32,41,44
+  s_6dab54d0e9eeda::t_94504cb38b7dbb 8-9,18,21-22,25,29,33,38-39,42-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cec1a06d57be1f901276e9a210b61c4f0c87db7e",
+  "prompts": {},
+  "sessions": {
+    "s_6dab54d0e9eeda": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1261f-f70b-78c0-be16-4b6887cc9470",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
