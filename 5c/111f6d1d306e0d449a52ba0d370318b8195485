@@ -1,0 +1,32 @@
+src/styles.css
+  s_6c8ad6305032a9::t_6903a444a65cd5 801,1275
+  s_6c8ad6305032a9::t_74edfa7b2efdd1 89,109,122,126,161,165,196,214,263,270,281,350,360,384,411,436,486,504,516,524,547,554,558,643,665,670,679,699,703,725,734,752,765,778,811,823,832,901,924,928,941,945,951,989,1039,1044,1066,1070,1101,1105,1136,1144,1167,1191,1213,1241,1300,1374,1387,1395,1417,1428,1446,1449,1460,1465,1477,1510,1513,1596,1639,1670,1719,1732,1741,1747,1749,1754,1760
+src/learning-apps/irregular-verbs/app.js
+  s_6c8ad6305032a9::t_fbe39cbd118cf7 34,36-37,40,48,50,72,75,77
+src/main.js
+  s_6c8ad6305032a9::t_4993b50448d27a 13,37
+src/platform/chat/page.js
+  s_6c8ad6305032a9::t_73add96487b7c1 2
+src/platform/learning-apps/page.js
+  s_6c8ad6305032a9::t_7f0017ccf89ee0 5
+src/platform/tasks/page.js
+  s_6c8ad6305032a9::t_6714f7117be610 10,13
+src/platform/tasks/photo-import.js
+  s_6c8ad6305032a9::t_003744b17185b9 17,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5c111f6d1d306e0d449a52ba0d370318b8195485",
+  "prompts": {},
+  "sessions": {
+    "s_6c8ad6305032a9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1264b-3c51-75c0-93ff-acb0689bb610",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
