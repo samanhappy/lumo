@@ -1,0 +1,59 @@
+src/styles.css
+  s_d65e52187d9412::t_48760ab8b6de9b 1762-1769
+  s_d65e52187d9412::t_36a11cca1ebbd5 1770
+  s_d65e52187d9412::t_0574fefbab549e 1750,1761,1771-1786
+  s_d65e52187d9412::t_98464ff9e4df38 1787
+  s_d65e52187d9412::t_42185dd7ae54a8 1733-1749,1751-1760
+src/learning-apps/irregular-verbs/app.js
+  s_d65e52187d9412::t_36a11cca1ebbd5 75
+  s_d65e52187d9412::t_cb286d2ecbabdc 12,34,37,50,77
+src/platform/tasks/page.js
+  s_d65e52187d9412::t_78c8df219b8987 11,14-16
+  s_d65e52187d9412::t_74a442bc49c8b6 30-36,40-41,43-44,47,49,51
+docs/release-qa.md
+  s_d65e52187d9412::t_0cbeb5062f5f9d 39,41
+  s_d65e52187d9412::t_8ff531e5cdc57f 2,4,6,18,20,22,24,26,37
+  s_d65e52187d9412::t_5c60ece420678d 1,3,5,7-16,19,21,23,25,27-33,35-36,38,40,42
+  s_d65e52187d9412::t_216a88ad59f66f 17,34,43-44
+ai.js
+  s_d65e52187d9412::t_2f73cb83e8f572 41,101
+  s_d65e52187d9412::t_fdaf618c337c02 78
+  s_d65e52187d9412::t_1a96bc711b0810 86,88-89
+  s_d65e52187d9412::t_ae9eed300785a9 37,43,54
+  s_d65e52187d9412::t_ca79abf09e515a 31,33-34
+src/main.js
+  s_d65e52187d9412::t_0574fefbab549e 12,14,22
+  s_d65e52187d9412::t_78c8df219b8987 35
+README.md
+  s_d65e52187d9412::t_533a66e22224d9 7,16,18,20
+src/platform/chat/page.js
+  s_d65e52187d9412::t_ca79abf09e515a 21,26,30,34
+  s_d65e52187d9412::t_78c8df219b8987 2,8-9
+tests/ai.test.js
+  s_d65e52187d9412::t_1a96bc711b0810 55
+  s_d65e52187d9412::t_108d04f96b442b 73-75
+  s_d65e52187d9412::t_57e0c468263256 76-82,84
+  s_d65e52187d9412::t_266581f95e582c 70-72
+  s_d65e52187d9412::t_ffb829e5c1074b 83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5aafc3ccffea838d2248be38eee54a0bfda6b4c0",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d65e52187d9412": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11bb4-5e66-7211-81c2-71691fcc803f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}

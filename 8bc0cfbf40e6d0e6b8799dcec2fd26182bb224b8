@@ -1,0 +1,57 @@
+src/platform/chat/page.js
+  s_d65e52187d9412::t_4b448538c15bbd 1-35
+server.js
+  s_d65e52187d9412::t_521c6a1d5f5bf1 2,20,35,40-49
+  s_d65e52187d9412::t_4b448538c15bbd 19,50-68,83
+ai.js
+  s_d65e52187d9412::t_389ab0f90df0b5 1-59
+  s_d65e52187d9412::t_521c6a1d5f5bf1 60-108
+README.md
+  s_d65e52187d9412::t_41614c18d09cd3 127-129,131-139
+  s_d65e52187d9412::t_ed55ae621cc2f8 33,37,41,43,130,140-146
+tests/ai.test.js
+  s_d65e52187d9412::t_5e5ad5b026659b 29-69
+  s_d65e52187d9412::t_1b5f6e52257ab4 1-28
+package.json
+  s_d65e52187d9412::t_4b448538c15bbd 20
+  s_d65e52187d9412::t_b119a60f5acd8b 14-15
+src/platform/tasks/ocr.js
+  s_d65e52187d9412::t_521c6a1d5f5bf1 32-35,37-43,45-48
+src/platform/tasks/photo-import.js
+  s_d65e52187d9412::t_521c6a1d5f5bf1 18,72,77,79
+compose.yaml
+  s_d65e52187d9412::t_4b448538c15bbd 11-12,15-16
+  s_d65e52187d9412::t_521c6a1d5f5bf1 13-14
+.env.example
+  s_d65e52187d9412::t_5e5ad5b026659b 17-20
+  s_d65e52187d9412::t_41614c18d09cd3 11-16
+src/main.js
+  s_d65e52187d9412::t_4b448538c15bbd 1,12,17
+Dockerfile
+  s_d65e52187d9412::t_4b448538c15bbd 6
+package-lock.json
+  s_d65e52187d9412::t_cf4962c167089d 11-12,17-655,664-879,892-966,987-1023,1033-1051,1180-1219,1226-1254,1264-1273,1304-1327,1334-1342,1359-1379
+tests/photo-import.test.js
+  s_d65e52187d9412::t_2f6f503d3a6eb4 6,31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8bc0cfbf40e6d0e6b8799dcec2fd26182bb224b8",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d65e52187d9412": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a11bb4-5e66-7211-81c2-71691fcc803f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
