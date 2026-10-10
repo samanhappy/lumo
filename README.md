@@ -103,11 +103,11 @@ npm run deploy -- deploy@你的服务器IP
 
 运行 `bash scripts/deploy.sh --help` 查看全部参数。可以通过 `DEPLOY_HOST` 提供默认主机。
 
-脚本使用当前工作区（包括未提交修改）构建，默认标签为 `docker.io/samanhappy/lumo:latest`，默认架构为 `linux/amd64`。导出的压缩包用于传输，部署成功后自动删除；失败时保留在本地系统临时目录，可用 `DEPLOY_OUTPUT_DIR` 指定目录。上传前后校验压缩包，并在服务器校验 SHA-256；远端临时上传目录在退出时清理。
+脚本通过 SSH 进入服务器项目目录（默认 `/opt/lumo`），执行 `git pull --ff-only`，然后在该目录构建镜像并启动应用。本地无需 Docker，也不上传源码或镜像；本地修改须先提交并推送到服务器当前分支的上游。默认镜像标签为 `docker.io/samanhappy/lumo:latest`，默认架构为 `linux/amd64`。
 
-服务器须提前准备 `compose.yaml` 和 `.env`，且 `postgres:17-bookworm` 镜像须已存在。脚本不会上传或覆盖这些配置，因此 Compose 结构发生变化时需先同步服务器文件。服务器 `.env` 中的 `APP_IMAGE` 应与本次部署标签一致，保证之后手动执行 Compose 仍使用已加载镜像。Compose 须支持 `up --wait`，脚本只重建 `app`，等待最多 180 秒；失败会返回非零退出码，不自动回滚。
+服务器须提前克隆仓库并配置上游分支、准备 `.env`，且 `postgres:17-bookworm` 镜像须已存在。`compose.yaml` 随 Git 更新，`.env` 保留在服务器。分支分叉或拉取失败时停止部署，不自动重置代码。服务器 `.env` 中的 `APP_IMAGE` 应与本次部署标签一致，保证之后手动执行 Compose 仍使用服务器构建的镜像。服务器须能访问 Git 远端、下载基础镜像和 npm 依赖。Compose 须支持 `up --wait`，脚本只重建 `app`，等待最多 180 秒；失败会返回非零退出码，不自动回滚。
 
-默认部署到 `root@43.130.3.115`，通过 `sshpass -f` 自动读取 `~/sshpass/openclaw`，本地需安装 `sshpass`。可用 `DEPLOY_SSH_PASSWORD_FILE` 指定其他密码文件，设为空则使用普通 SSH 认证。显式指定其他主机或 `DEPLOY_SSH_KEY` 时默认不使用该密码文件。root 用户直接运行 Docker；其他用户默认使用 `sudo -n`。SSH 端口与私钥同时应用于 SSH 和 SCP，不关闭主机密钥校验。
+默认部署到 `root@43.130.3.115`，通过 `sshpass -f` 自动读取 `~/sshpass/openclaw`，本地需安装 `sshpass`。可用 `DEPLOY_SSH_PASSWORD_FILE` 指定其他密码文件，设为空则使用普通 SSH 认证。显式指定其他主机或 `DEPLOY_SSH_KEY` 时默认不使用该密码文件。root 用户直接运行 Docker；其他用户默认使用 `sudo -n`。SSH 端口与私钥应用于 SSH，不关闭主机密钥校验。
 
 PostgreSQL 集成测试只运行在独立测试数据库中：
 
