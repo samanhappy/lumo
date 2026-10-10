@@ -4,14 +4,14 @@ set -euo pipefail
 usage() {
   cat <<'HELP'
 用法: bash scripts/deploy.sh [user@]host
-默认主机 ubuntu@106.54.5.158；可用参数或 DEPLOY_HOST 覆盖。
+默认主机 root@43.130.3.115；可用参数或 DEPLOY_HOST 覆盖。
 可选环境变量:
   DEPLOY_DIR          服务器项目目录，默认 /opt/lumo
   DEPLOY_IMAGE        镜像标签，默认 docker.io/samanhappy/lumo:latest
   DEPLOY_PLATFORM     默认 linux/amd64
   DEPLOY_SSH_PORT     SSH 端口，默认 22
   DEPLOY_SSH_KEY      SSH 私钥文件（指定后默认不读取密码文件）
-  DEPLOY_SSH_PASSWORD_FILE  默认主机使用 ~/sshpass/tongzhou；设为空禁用
+  DEPLOY_SSH_PASSWORD_FILE  默认主机使用 ~/sshpass/openclaw；设为空禁用
   DEPLOY_OUTPUT_DIR   本地压缩包目录，默认系统临时目录
   DEPLOY_SUDO         auto（默认，非 root 使用 sudo -n）、yes 或 no
 前提: 服务器已有 compose.yaml、.env、Docker Compose（支持 --wait）及数据库镜像。
@@ -20,7 +20,7 @@ HELP
 }
 if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then usage; exit 0; fi
 [[ $# -le 1 ]] || { usage >&2; exit 2; }
-target=${1:-${DEPLOY_HOST:-ubuntu@106.54.5.158}}
+target=${1:-${DEPLOY_HOST:-root@43.130.3.115}}
 [[ "$target" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.@-]*$ ]] || { echo '请指定有效的 SSH 主机或别名' >&2; exit 2; }
 remote_dir=${DEPLOY_DIR:-/opt/lumo}
 image=${DEPLOY_IMAGE:-docker.io/samanhappy/lumo:latest}
@@ -30,8 +30,8 @@ sudo_mode=${DEPLOY_SUDO:-auto}
 for command in docker gzip ssh scp shasum; do command -v "$command" >/dev/null || { echo "缺少命令: $command" >&2; exit 1; }; done
 auth=(env)
 default_password_file=''
-if [[ "$target" == ubuntu@106.54.5.158 && -z "${DEPLOY_SSH_KEY:-}" ]]; then
-  default_password_file="$HOME/sshpass/tongzhou"
+if [[ "$target" == root@43.130.3.115 && -z "${DEPLOY_SSH_KEY:-}" ]]; then
+  default_password_file="$HOME/sshpass/openclaw"
 fi
 password_file=${DEPLOY_SSH_PASSWORD_FILE-$default_password_file}
 if [[ -n "$password_file" ]]; then

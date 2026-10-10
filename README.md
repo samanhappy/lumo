@@ -107,7 +107,7 @@ npm run deploy -- deploy@你的服务器IP
 
 服务器须提前准备 `compose.yaml` 和 `.env`，且 `postgres:17-bookworm` 镜像须已存在。脚本不会上传或覆盖这些配置，因此 Compose 结构发生变化时需先同步服务器文件。服务器 `.env` 中的 `APP_IMAGE` 应与本次部署标签一致，保证之后手动执行 Compose 仍使用已加载镜像。Compose 须支持 `up --wait`，脚本只重建 `app`，等待最多 180 秒；失败会返回非零退出码，不自动回滚。
 
-默认部署到 `ubuntu@106.54.5.158`，通过 `sshpass -f` 自动读取 `~/sshpass/tongzhou`，本地需安装 `sshpass`。可用 `DEPLOY_SSH_PASSWORD_FILE` 指定其他密码文件，设为空则使用普通 SSH 认证。显式指定其他主机或 `DEPLOY_SSH_KEY` 时默认不使用该密码文件。root 用户直接运行 Docker；其他用户默认使用 `sudo -n`。SSH 端口与私钥同时应用于 SSH 和 SCP，不关闭主机密钥校验。
+默认部署到 `root@43.130.3.115`，通过 `sshpass -f` 自动读取 `~/sshpass/openclaw`，本地需安装 `sshpass`。可用 `DEPLOY_SSH_PASSWORD_FILE` 指定其他密码文件，设为空则使用普通 SSH 认证。显式指定其他主机或 `DEPLOY_SSH_KEY` 时默认不使用该密码文件。root 用户直接运行 Docker；其他用户默认使用 `sudo -n`。SSH 端口与私钥同时应用于 SSH 和 SCP，不关闭主机密钥校验。
 
 PostgreSQL 集成测试只运行在独立测试数据库中：
 

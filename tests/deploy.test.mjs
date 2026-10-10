@@ -24,7 +24,7 @@ for (const failed of ['', 'build', 'scp', 'remote', 'password']) {
       if (failed === 'scp') assert.doesNotMatch(calls, /compose up/);
       if (!failed || failed === 'password') {
         if (failed === 'password') {
-          assert.match(calls, /ubuntu@106\.54\.5\.158/);
+          assert.match(calls, /root@106\.54\.5\.158/);
           assert.equal((calls.match(/sshpass -f/g) || []).length, 4);
           assert.doesNotMatch(calls + result.stdout + result.stderr, /test-secret/);
         }
