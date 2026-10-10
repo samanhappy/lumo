@@ -1,0 +1,27 @@
+tests/apps.test.js
+  s_aae65e576e8100::t_bc397f36957335 1-21
+src/platform/tasks/page.js
+  s_aae65e576e8100::t_c8c797219c5705 15
+src/learning-apps/irregular-verbs/app.js
+  s_aae65e576e8100::t_c8c797219c5705 34,48
+src/main.js
+  s_aae65e576e8100::t_c8c797219c5705 1,13,17,19
+src/platform/learning-apps/page.js
+  s_aae65e576e8100::t_bc397f36957335 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "dd5c1711b3b5b03943cd17c20fdf980f12f91aa8",
+  "prompts": {},
+  "sessions": {
+    "s_aae65e576e8100": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12635-adc3-7ea2-9175-f4ae70fce4d2",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
