@@ -80,7 +80,7 @@ const server = http.createServer(async (req, res) => {
       } catch (error) { res.writeHead(error.status || 500).end(JSON.stringify({ error: error.status ? error.message : '数据库保存失败，请重试。' })); }
       return;
     }
-    if (!(pathname === '/' || pathname === '/index.html' || pathname === '/today' || pathname === '/chat' || pathname === '/login' || pathname.startsWith('/apps/') || pathname.startsWith('/src/') || pathname.startsWith('/public/ocr/') || pathname.startsWith('/node_modules/')) || pathname.includes('.sqlite')) { res.writeHead(403).end(); return; }
+    if (!(pathname === '/' || pathname === '/index.html' || pathname === '/public/favicon.png' || pathname === '/today' || pathname === '/chat' || pathname === '/login' || pathname.startsWith('/apps/') || pathname.startsWith('/src/') || pathname.startsWith('/public/ocr/') || pathname.startsWith('/node_modules/')) || pathname.includes('.sqlite')) { res.writeHead(403).end(); return; }
     const path = resolve(root, '.' + pathname);
     if (pathname.includes('..') || (path !== resolve(root) && !path.startsWith(root.endsWith(sep) ? root : root + sep))) { res.writeHead(403).end(); return; }
     const file = extname(pathname) ? path : resolve(root, 'index.html');
