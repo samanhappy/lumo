@@ -1,0 +1,21 @@
+server.js
+  s_38647c820fdf51::t_7a207c0f469a35 83
+index.html
+  s_38647c820fdf51::t_7a207c0f469a35 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "552c8d64e5e3f05f589e0e3b6b2a2fe686332f07",
+  "prompts": {},
+  "sessions": {
+    "s_38647c820fdf51": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12648-3f8d-70e1-95c3-44cd9e0e6cd7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
