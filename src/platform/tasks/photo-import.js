@@ -8,17 +8,16 @@ export function photoImportDialog(root, { studentId, date, onImported }) {
   dialog.setAttribute('aria-labelledby', 'photo-title');
   dialog.innerHTML = `<form>
     <div class="section-heading"><h2 id="photo-title">拍照导入作业</h2><button type="button" class="quiet" id="close-photo" aria-label="关闭">${icon('close')}</button></div>
-    <p class="photo-description">拍清楚作业内容，识别后核对再导入。</p>
     <div class="photo-select-actions">
       <button type="button" class="primary" id="take-photo">${icon('camera')} 拍照</button>
       <button type="button" class="secondary" id="choose-photo">选择图片</button>
       <input id="camera-file" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden>
       <input id="photo-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
     </div>
-    <p class="muted">选择图片后会上传至服务器，并发送给配置的模型服务识别。本应用不保存照片；手写内容和页码请仔细核对。</p>
+    <p class="muted">照片会上传给 AI 识别，用完不保存。请核对文字和页码。</p>
     <div class="photo-review" hidden>
       <div class="photo-preview"><img alt="待识别的作业照片"></div>
-      <label class="field">核对作业内容 <span class="muted">每行一项，可修改、删除或补充；标题和日期请移除。</span>
+      <label class="field">核对作业内容 <span class="muted">每行一项作业，不要填标题和日期。</span>
         <textarea name="homework" rows="9" maxlength="20000" placeholder="数学练习册 P32–33&#10;语文试卷订正&#10;英语课文背诵"></textarea>
       </label>
     </div>
