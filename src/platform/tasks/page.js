@@ -1,5 +1,4 @@
 import { student, user } from '../student.js';
-import { learningApps, appSummary } from '../learning-apps/registry.js';
 import { localDate, shiftDate, formatDate, loadTasks, storeTasks, saveTask, toggleTask } from './model.js';
 import { escape, icon, notify } from '../../ui.js';
 import { photoImportDialog } from './photo-import.js';
@@ -13,7 +12,7 @@ export function renderToday(root) {
   <section class="panel task-panel"><div class="section-heading"><h2>${icon('today')} ${selectedDate===today?'今日事项':'当日事项'} <span class="count">${complete}<small> / ${tasks.length}</small></span></h2><div class="task-heading-actions"><button class="secondary small" id="import-photo">${icon('camera')} 拍照导入</button><button class="primary small" id="add-task">${icon('plus')} 添加事项</button></div></div>
   <div class="task-list">${tasks.length?tasks.map(t=>`<div class="task-row ${t.completed?'done':''}"><button class="checkbox" data-toggle="${t.id}" aria-label="${t.completed?'取消完成':'完成'}：${escape(t.title)}" aria-pressed="${t.completed}">${t.completed?icon('check'):''}</button><span class="task-title">${escape(t.title)}</span><span class="badge ${t.type==='HOMEWORK'?'homework':'todo'}">${t.type==='HOMEWORK'?'作业':'待办'}</span><button class="quiet row-action" data-edit="${t.id}" aria-label="编辑：${escape(t.title)}">${icon('edit')}</button></div>`).join(''):`<div class="empty-state"><div class="empty-icon">${icon('today')}</div><h3>还没有事项</h3><p>添加事项，或从作业照片导入。</p></div>`}</div>
   ${tasks.length?`<div class="task-bottom"><span>${complete===tasks.length?'全部完成':`还有 ${tasks.length-complete} 项未完成`}</span><div class="mini-track"><i style="width:${complete/tasks.length*100}%"></i></div></div>`:''}</section>
-  <section class="learning-section"><div class="section-heading"><h2>${icon('book')} ${user?.role==='parent'?'孩子的学习概况':'我的学习应用'}</h2></div>${learningApps.filter(a=>a.enabled).map(entry=>{ let s;try{s=appSummary(entry,student.id)}catch(e){s=entry.app.getSummary(student.id);notify(e.message)}return `<article class="app-card"><div class="app-icon" aria-hidden="true"><span>A</span><span>B</span></div><div class="app-info"><span class="eyebrow">英语 · VERB QUEST</span><h3>${escape(s.title)}</h3><p>${escape(s.progressText)}</p><span class="muted estimate">${icon('clock')} 预计 ${s.estimatedMinutes} 分钟</span></div>${user?.role==='parent'?'<span class="badge">学生账号可继续练习</span>':`<a class="primary" href="/apps/${entry.code}">继续学习 ${icon('arrow')}</a>`}</article>`}).join('')}</section></section>`;
+  </section>`;
   const change = d=>{selectedDate=d;renderToday(root)};
   root.querySelector('#selected-date').onchange=e=>{if(e.target.value)change(e.target.value)};
   root.querySelectorAll('[data-date]').forEach(b=>b.onclick=()=>change(b.dataset.date));
