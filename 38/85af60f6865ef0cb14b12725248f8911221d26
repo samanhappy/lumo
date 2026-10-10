@@ -1,0 +1,18 @@
+README.md
+  h_18676a549cd52a 108
+scripts/deploy.sh
+  h_18676a549cd52a 7,23,33
+tests/deploy.test.mjs
+  h_18676a549cd52a 27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "3885af60f6865ef0cb14b12725248f8911221d26",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
