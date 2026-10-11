@@ -1,4 +1,5 @@
 import { read, write } from '../../storage.js';
+export const SUBJECTS = ['语文', '数学', '英语', '其他'];
 export function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
 }
@@ -8,10 +9,13 @@ const validDate = date => /^\d{4}-\d{2}-\d{2}$/.test(date) && localDate(new Date
 export function saveTask(tasks, input, studentId, now = new Date().toISOString()) {
   const title = input.title.trim();
   if (!title || title.length > 120) throw new Error('事项内容需要 1–120 个字符。');
-  if (!['HOMEWORK','TODO'].includes(input.type)) throw new Error('请选择事项类型。');
   if (!validDate(input.date)) throw new Error('请选择有效日期。');
   const old = tasks.find(t => t.id === input.id && t.student_id === studentId);
-  const task = { ...old, id: old?.id ?? crypto.randomUUID(), student_id: studentId, title, type: input.type, date: input.date,
+  const subject = input.subject ?? (old?.subject ? (SUBJECTS.includes(old.subject) ? old.subject : '其他') : '');
+  if (subject !== '' && !SUBJECTS.includes(subject)) throw new Error('请选择有效学科。');
+  const type = input.type ?? old?.type ?? 'HOMEWORK';
+  if (!['HOMEWORK','TODO'].includes(type)) throw new Error('事项类型无效。');
+  const task = { ...old, id: old?.id ?? crypto.randomUUID(), student_id: studentId, title, subject, type, date: input.date,
     completed: old?.completed ?? false, completed_at: old?.completed_at ?? null, created_at: old?.created_at ?? now, updated_at: now };
   return old ? tasks.map(t => t.id === old.id ? task : t) : [...tasks, task];
 }

@@ -92,6 +92,7 @@ id
 student_id
 date
 title
+subject（可选：语文、数学、英语、其他）
 type
 completed
 completed_at

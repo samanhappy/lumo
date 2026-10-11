@@ -17,6 +17,41 @@ test('daily task CRUD, student isolation, completion timestamps and local dates'
  assert.throws(()=>saveTask(tasks,{title:'a',date:'2026-02-30',type:'TODO'},'a'));
  assert.equal(shiftDate('2026-12-31',1),'2027-01-01');assert.equal(localDate(new Date(2026,9,7,0,1)),'2026-10-07');
 });
+test('tasks need no type selection and preserve existing types when edited',()=>{
+ const input={title:'带水杯',date:'2026-10-11'};
+ let tasks=saveTask([],input,'a');
+ assert.equal(tasks[0].title,input.title);
+ for(const type of ['HOMEWORK','TODO']){
+  tasks=saveTask([],{...input,type},'a');
+  tasks=toggleTask(tasks,tasks[0].id,'a','finished');
+  const edited=saveTask(tasks,{...input,id:tasks[0].id,title:'带水杯和雨伞'},'a')[0];
+  assert.equal(edited.type,type);
+  assert.equal(edited.completed,true);
+  assert.equal(edited.completed_at,'finished');
+ }
+ assert.throws(()=>saveTask([],{...input,type:'invalid'},'a'));
+});
+test('optional task subjects can be added, preserved and cleared with legacy tasks',()=>{
+ const input={title:'练习册 P32',date:'2026-10-11'};
+ let tasks=saveTask([],{...input,subject:'数学'},'a');
+ assert.equal(tasks[0].subject,'数学');
+ const id=tasks[0].id;
+ tasks=saveTask(tasks,{...input,id},'a');
+ assert.equal(tasks[0].subject,'数学');
+ tasks=toggleTask(tasks,id,'a');
+ assert.equal(tasks[0].subject,'数学');
+ tasks=saveTask(tasks,{...input,id,subject:''},'a');
+ assert.equal(tasks[0].subject,'');
+ delete tasks[0].subject;
+ tasks=saveTask(tasks,{...input,id},'a');
+ assert.equal(tasks[0].subject,'');
+ assert.equal(tasks[0].completed,true);
+ for(const subject of ['语文','数学','英语','其他']) assert.equal(saveTask([],{...input,subject},'a')[0].subject,subject);
+ tasks[0].subject='科学';
+ assert.equal(saveTask(tasks,{...input,id},'a')[0].subject,'其他');
+ assert.throws(()=>saveTask([],{...input,subject:'科学'},'a'),/有效学科/);
+ assert.throws(()=>saveTask([],{...input,subject:42},'a'));
+});
 test('all 84 words retain valid distractors and alternate spellings; mastery and review are app owned',()=>{
  assert.equal(WORDS.length,84);assert.equal(new Set(WORDS.map(w=>w.id)).size,84);
  for(const w of WORDS){const options=optionsFor(w);assert.equal(options.length,4);assert.equal(new Set(options).size,4);assert.equal(options.filter(a=>isCorrect(w,a)).length,1)}
