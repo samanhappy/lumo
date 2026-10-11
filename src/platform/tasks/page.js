@@ -1,18 +1,18 @@
 import { student, user } from '../student.js';
-import { SUBJECTS, localDate, shiftDate, formatDate, loadTasks, storeTasks, saveTask, toggleTask } from './model.js';
+import { SUBJECTS, localDate, shiftDate, formatDate, loadTasks, storeTasks, saveTask, toggleTask, orderedTasks, reorderTask } from './model.js';
 import { escape, icon, notify } from '../../ui.js';
 import { attachDatePickers } from './date-picker.js';
 import { photoImportDialog } from './photo-import.js';
 let selectedDate = localDate();
 export function renderToday(root) {
   const parent = user?.role === 'parent';
-  const today = localDate(), tasks = loadTasks().filter(t=>t.student_id===student.id && t.date===selectedDate);
+  const today = localDate(), tasks = orderedTasks(loadTasks(),student.id,selectedDate);
   const complete = tasks.filter(t=>t.completed).length;
   root.innerHTML = `<section class="page today-page"><header class="page-heading"><div><h1>${selectedDate===today ? (parent ? `${escape(student.name)}的今日安排` : `今日安排`) : '当日安排'}</h1><p>把每天的小事，一件件完成。</p></div></header>
   <div class="today-toolbar"><label class="date-pill">${icon('today')}<input type="date" id="selected-date" aria-label="查看日期" value="${selectedDate}"></label>
   <div class="date-strip"><button class="quiet" id="previous-day" aria-label="前一天">‹</button>${[-1,0,1].map(n=>{const d=shiftDate(selectedDate,n); return `<button data-date="${d}" class="date-chip ${n===0?'selected':''}">${formatDate(d).replace('星期','周')}</button>`}).join('')}<button class="quiet" id="next-day" aria-label="后一天">›</button>${selectedDate!==today?'<button class="quiet" id="back-today">回到今天</button>':''}</div></div>
   <section class="panel task-panel"><div class="section-heading"><h2>${icon('today')} ${selectedDate===today?'今日事项':'当日事项'} <span class="count">${complete}<small> / ${tasks.length}</small></span></h2><div class="task-heading-actions"><button class="secondary small" id="import-photo">${icon('camera')} 拍照导入</button><button class="primary small" id="add-task">${icon('plus')} 添加事项</button></div></div>
-  <div class="task-list">${tasks.length?tasks.map(t=>`<div class="task-row ${t.completed?'done':''}"><button class="checkbox" data-toggle="${t.id}" aria-label="${t.completed?'取消完成':'完成'}：${escape(t.title)}" aria-pressed="${t.completed}">${t.completed?icon('check'):''}</button><div class="task-copy">${t.subject?`<span class="task-subject">${escape(t.subject)}</span>`:''}<span class="task-title">${escape(t.title)}</span></div><button class="quiet row-action" data-edit="${t.id}" aria-label="编辑：${escape(t.title)}">${icon('edit')}</button></div>`).join(''):`<div class="empty-state"><div class="empty-icon">${icon('today')}</div><h3>还没有事项</h3></div>`}</div>
+  <div class="task-list">${tasks.length?tasks.map(t=>`<div class="task-row ${t.completed?'done':''}" data-task-id="${t.id}"><button class="quiet task-drag" data-drag="${t.id}" aria-label="排序：${escape(t.title)}（上下方向键移动）" title="拖动排序，或使用上下方向键">⠿</button><button class="checkbox" data-toggle="${t.id}" aria-label="${t.completed?'取消完成':'完成'}：${escape(t.title)}" aria-pressed="${t.completed}">${t.completed?icon('check'):''}</button><div class="task-copy">${t.subject?`<span class="task-subject">${escape(t.subject)}</span>`:''}<span class="task-title">${escape(t.title)}</span></div><button class="quiet row-action" data-edit="${t.id}" aria-label="编辑：${escape(t.title)}">${icon('edit')}</button></div>`).join(''):`<div class="empty-state"><div class="empty-icon">${icon('today')}</div><h3>还没有事项</h3></div>`}</div>
   </section>
   </section>`;
   attachDatePickers(root);
@@ -29,9 +29,58 @@ export function renderToday(root) {
     onImported: date => { selectedDate = date; renderToday(root); }
   });
   root.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>taskDialog(root,tasks.find(t=>t.id===b.dataset.edit)));
+  const persistOrder = async (next, id) => {
+    const buttons = [...root.querySelectorAll('[data-toggle], [data-edit], [data-drag], #add-task, #import-photo')];
+    buttons.forEach(button => button.disabled = true);
+    try { await storeTasks(next); }
+    catch (error) { notify(error.message); }
+    finally {
+      buttons.forEach(button => button.disabled = false);
+      if (root.isConnected) {
+        renderToday(root);
+        [...root.querySelectorAll('[data-drag]')].find(button => button.dataset.drag === id)?.focus();
+      }
+    }
+  };
+  root.querySelectorAll('[data-drag]').forEach(handle => {
+    handle.onkeydown = event => {
+      if (!['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+      event.preventDefault();
+      const index = tasks.findIndex(t => t.id === handle.dataset.drag);
+      const target = tasks[index + (event.key === 'ArrowUp' ? -1 : 1)];
+      if (!target || !!target.completed !== !!tasks[index].completed) return;
+      void persistOrder(reorderTask(loadTasks(), handle.dataset.drag, target.id, student.id, selectedDate), handle.dataset.drag);
+    };
+    handle.onpointerdown = event => {
+      if (handle.disabled || event.button !== 0) return;
+      event.preventDefault();
+      handle.setPointerCapture(event.pointerId);
+      const row = handle.closest('[data-task-id]');
+      row.classList.add('dragging');
+      let next = loadTasks(), changed = false;
+      handle.onpointermove = move => {
+        const target = document.elementFromPoint(move.clientX, move.clientY)?.closest('[data-task-id]');
+        if (!target || !root.contains(target) || target === row || target.classList.contains('done') !== row.classList.contains('done')) return;
+        next = reorderTask(next, handle.dataset.drag, target.dataset.taskId, student.id, selectedDate);
+        const rows = [...row.parentElement.children];
+        row.parentElement.insertBefore(row, rows.indexOf(row) < rows.indexOf(target) ? target.nextSibling : target);
+        handle.setPointerCapture(move.pointerId);
+        changed = true;
+      };
+      const finish = cancelled => {
+        handle.onpointermove = handle.onpointerup = handle.onpointercancel = handle.onlostpointercapture = null;
+        row.classList.remove('dragging');
+        if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+        if (cancelled) renderToday(root);
+        else if (changed) void persistOrder(next, handle.dataset.drag);
+      };
+      handle.onpointerup = () => finish(false);
+      handle.onpointercancel = handle.onlostpointercapture = () => finish(true);
+    };
+  });
   root.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=async()=>{
     if(b.disabled)return;
-    const buttons=[...root.querySelectorAll('[data-toggle], [data-edit], #add-task, #import-photo')];
+    const buttons=[...root.querySelectorAll('[data-toggle], [data-edit], [data-drag], #add-task, #import-photo')];
     buttons.forEach(button=>button.disabled=true);
     try{await storeTasks(toggleTask(loadTasks(),b.dataset.toggle,student.id));if(root.isConnected){renderToday(root);root.querySelectorAll('[data-toggle]').forEach(button=>{if(button.dataset.toggle===b.dataset.toggle)button.focus()})}}
     catch(e){notify(e.message)}finally{buttons.forEach(button=>button.disabled=false)}

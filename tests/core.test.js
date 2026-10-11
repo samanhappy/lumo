@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { saveTask, toggleTask, localDate, shiftDate } from '../src/platform/tasks/model.js';
+import { saveTask, toggleTask, localDate, shiftDate, orderedTasks, reorderTask, storeTasks, loadTasks } from '../src/platform/tasks/model.js';
 import { WORDS, optionsFor, isCorrect, updateMastery, createDeck } from '../src/learning-apps/irregular-verbs/domain.js';
 import { irregularVerbs } from '../src/learning-apps/irregular-verbs/app.js';
 import { loadState, saveState, emptyState } from '../src/learning-apps/irregular-verbs/repository.js';
@@ -68,4 +68,26 @@ test('sessions and summaries persist independently for each student; corrupt dat
  await assert.rejects(()=>irregularVerbs.start('b','wrong'));await assert.rejects(()=>irregularVerbs.start('b','bogus'));
  memory.set('lumo:iv:c','{bad');assert.deepEqual(loadState('c'),emptyState());
  const original=localStorage.setItem;localStorage.setItem=()=>{throw new Error('quota')};await assert.rejects(()=>irregularVerbs.start('a'),/无法保存数据/);localStorage.setItem=original;assert.equal(loadState('a').active,null);
+});
+
+test('task ordering persists within a date and student, with completed tasks last', async () => {
+ const tasks = [
+  {id:'done', student_id:'a', date:'2026-10-11', completed:true},
+  {id:'first', student_id:'a', date:'2026-10-11', completed:false},
+  {id:'other-student', student_id:'b', date:'2026-10-11'},
+  {id:'second', student_id:'a', date:'2026-10-11', completed:false},
+  {id:'other-date', student_id:'a', date:'2026-10-12'},
+  {id:'done2', student_id:'a', date:'2026-10-11', completed:true},
+ ];
+ const ids = value => orderedTasks(value,'a','2026-10-11').map(t=>t.id);
+ assert.deepEqual(ids(tasks), ['first','second','done','done2']);
+ const moved = reorderTask(tasks,'second','first','a','2026-10-11');
+ assert.deepEqual(ids(moved), ['second','first','done','done2']);
+ assert.equal(moved[2], tasks[2]); assert.equal(moved[4], tasks[4]);
+ assert.deepEqual(ids(reorderTask(moved,'second','first','a','2026-10-11')), ['first','second','done','done2']);
+ assert.deepEqual(ids(reorderTask(moved,'done2','done','a','2026-10-11')), ['second','first','done2','done']);
+ for (const target of ['done','other-student','other-date','missing']) assert.equal(reorderTask(moved,'first',target,'a','2026-10-11'), moved);
+ await storeTasks(moved); assert.deepEqual(ids(loadTasks()), ids(moved));
+ assert.deepEqual(ids(toggleTask(moved,'second','a')), ['first','second','done','done2']);
+ assert.deepEqual(ids(tasks), ['first','second','done','done2']);
 });

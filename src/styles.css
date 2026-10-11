@@ -1846,3 +1846,7 @@ input:focus {
   .today-page .task-title { min-width: 0; }
   .today-page .task-heading-actions { gap: 8px; }
 }
+
+.today-page .task-drag { cursor: grab; touch-action: none; flex-shrink: 0; color: #9da3bb; }
+.today-page .task-row.dragging { background: #f3f0ff; }
+.today-page .task-row.dragging .task-drag { cursor: grabbing; }

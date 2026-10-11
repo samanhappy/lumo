@@ -46,3 +46,16 @@ export function importHomework(tasks, text, date, studentId) {
 }
 export const loadTasks = () => { const data = read('lumo:daily_task', []); return Array.isArray(data) ? data : []; };
 export const storeTasks = tasks => write('lumo:daily_task', tasks);
+
+export function orderedTasks(tasks, studentId, date) {
+  return tasks.filter(t => t.student_id === studentId && t.date === date)
+    .sort((a, b) => Number(a.completed) - Number(b.completed));
+}
+export function reorderTask(tasks, id, targetId, studentId, date) {
+  const group = orderedTasks(tasks, studentId, date);
+  const from = group.findIndex(t => t.id === id), to = group.findIndex(t => t.id === targetId);
+  if (from < 0 || to < 0 || from === to || !!group[from].completed !== !!group[to].completed) return tasks;
+  group.splice(to, 0, group.splice(from, 1)[0]);
+  let index = 0;
+  return tasks.map(t => t.student_id === studentId && t.date === date ? group[index++] : t);
+}
