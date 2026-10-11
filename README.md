@@ -123,7 +123,7 @@ TEST_DATABASE_URL=postgresql://user:password@localhost:5432/lumo_test npm test
 
 学生端管理和完成作业、进行学习练习；家长端查看关联孩子的事项及学习概况、管理作业，不能提交学习记录。数据接口在服务端强制检查登录、角色和学生范围。原来的小雨作业及练习记录自动迁入 `local-student`，保留旧数据；已有浏览器数据仅由关联该 ID 的学生账号导入。
 
-本地 `npm run dev` 无配置时提供 `student / student123` 和 `parent / parent123`，仅用于开发。自定义账号可使用 `LUMO_USERS='[...]' npm run dev`；普通启动不会自动读取 `.env`，Docker Compose 会读取。正式部署必须修改示例密码。密码使用 scrypt 校验，浏览器只持有 HttpOnly、SameSite=Strict 会话 cookie，会话 12 小时有效，退出立即失效；登录失败会限速。HTTPS 部署设置 `COOKIE_SECURE=true`。
+本地 `npm run dev` 无配置时提供 `student / student123` 和 `parent / parent123`，仅用于开发。自定义账号可使用 `LUMO_USERS='[...]' npm run dev`；`npm run dev` 和 `npm start` 默认读取 `.env`（文件不存在也可启动），已有环境变量优先；Docker Compose 也会读取。正式部署必须修改示例密码。密码使用 scrypt 校验，浏览器只持有 HttpOnly、SameSite=Strict 会话 cookie，会话 12 小时有效，退出立即失效；登录失败会限速。HTTPS 部署设置 `COOKIE_SECURE=true`。
 
 会话保存在服务进程内，重启需要重新登录；当前 Compose 单个 app 实例适用。账号配置更新后重启 app 即生效：`docker compose up -d --force-recreate app`。无注册、找回密码或账户管理界面。
 
@@ -131,7 +131,7 @@ TEST_DATABASE_URL=postgresql://user:password@localhost:5432/lumo_test npm test
 
 学习助手入口为 `/chat`。后端使用固定版本的 `@earendil-works/pi-ai` 和 `@earendil-works/pi-agent-core`，支持多轮文本咨询、流式回答、停止生成，以及查询当前登录账号关联学生指定日期的作业。工具只读，无法修改作业。图片导入和图片提问使用单独配置的 pi 视觉模型。聊天加号菜单支持上传图片和相机拍照（移动端优先后置相机，桌面浏览器可能显示文件选择器）。聊天支持 JPG、PNG、WebP（原图最多 20 MB，压缩后最多 3 MB），可只发送图片；后续对话需要参考原图时，请再次附图。语音输入使用浏览器 SpeechRecognition，识别后可编辑再发送，需要支持该接口的浏览器、麦克风权限和 HTTPS（localhost 除外）；识别服务可能需要联网。
 
-配置 `LUMO_AI_PROVIDER`（`deepseek` 或 `openai`）、`LUMO_AI_MODEL`（安装版本 pi 模型目录中的 ID）和对应的 `DEEPSEEK_API_KEY` / `OPENAI_API_KEY`。缺少配置时助手返回明确提示，其他功能正常使用。普通 `npm run dev` 不自动读取 `.env`；本地可用 `node --env-file=.env server.js`，Docker Compose 已传递这些配置。密钥仅由后端读取，勿提交真实密钥。
+配置 `LUMO_AI_PROVIDER`（`deepseek` 或 `openai`）、`LUMO_AI_MODEL`（安装版本 pi 模型目录中的 ID）和对应的 `DEEPSEEK_API_KEY` / `OPENAI_API_KEY`。缺少配置时助手返回明确提示，其他功能正常使用。本地 `npm run dev` 和 `npm start` 默认读取 `.env`，Docker Compose 已传递这些配置。密钥仅由后端读取，勿提交真实密钥。
 
 Node.js 最低版本为 22.19。可查看支持的模型 ID：
 
@@ -143,6 +143,6 @@ node --input-type=module -e "import {createModels} from '@earendil-works/pi-ai';
 
 ### 图片模型配置
 
-设置 LUMO_VISION_PROVIDER=openai 和 LUMO_VISION_MODEL（pi 目录中支持 image 输入的模型 ID），以及 OPENAI_API_KEY。视觉模型与聊天模型独立配置；deepseek 也可选择，但必须支持 image 输入，否则拒绝调用。Docker Compose 已传递这些变量；普通开发启动可用 `node --env-file=.env server.js`。
+设置 LUMO_VISION_PROVIDER=openai 和 LUMO_VISION_MODEL（pi 目录中支持 image 输入的模型 ID），以及 OPENAI_API_KEY。视觉模型与聊天模型独立配置；deepseek 也可选择，但必须支持 image 输入，否则拒绝调用。Docker Compose 已传递这些变量；本地 `npm run dev` 和 `npm start` 默认读取 `.env`。
 
 图片接口为 POST /api/homework/recognize，要求登录、同源 JSON 请求并校验图片类型与文件签名。图片仅作为数据传给模型，没有业务写入工具；返回条目须符合批量导入限制。识别最长 60 秒，同账号一个请求、总计最多四个并发；取消会中止模型请求。识别失败保留预览并允许手动填写，不会悄悄回退到本地 OCR 或保存部分作业。

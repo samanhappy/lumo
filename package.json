@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node server.js",
-    "start": "node server.js",
+    "dev": "node --env-file-if-exists=.env server.js",
+    "start": "node --env-file-if-exists=.env server.js",
     "deploy": "bash scripts/deploy.sh",
     "test": "node --test",
     "migrate:postgres": "node scripts/migrate-postgres.js"

@@ -13,6 +13,9 @@ export function renderChat(root) {
   root.addEventListener('click', event => { if (!event.target.closest('.chat-upload')) closeMenu(); });
   form.addEventListener('keydown', event => { if (event.key === 'Escape') { closeMenu(); menuButton.focus(); } });
   let controller, history = [], image, recognition, listening = false;
+  let followReply = true;
+  log.addEventListener('scroll', () => { followReply = log.scrollHeight - log.clientHeight - log.scrollTop <= 48; });
+  const scrollToBottom = () => { log.scrollTop = log.scrollHeight; };
   function updateInput() {
     input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight,180) + 'px';
     send.disabled = !!controller || attach.disabled || (!input.value.trim() && !image);
@@ -47,7 +50,7 @@ export function renderChat(root) {
     log.querySelector('.chat-empty')?.remove();
     const title = document.createElement('strong'); title.textContent = label + '：';
     const body = document.createElement('span'); body.textContent = text;
-    item.append(title, body); if (photo) { const img = document.createElement('img'); img.src = `data:${photo.mimeType};base64,${photo.data}`; img.alt = '提问图片'; item.append(img); } log.append(item); return body;
+    item.append(title, body); if (photo) { const img = document.createElement('img'); img.src = `data:${photo.mimeType};base64,${photo.data}`; img.alt = '提问图片'; img.onload = () => { if (followReply) scrollToBottom(); }; item.append(img); } log.append(item); scrollToBottom(); return body;
   }
   stop.onclick = () => controller?.abort();
   const observer = new MutationObserver(() => { if (!root.isConnected) { recognition?.abort(); remove.onclick(); controller?.abort(); observer.disconnect(); } });
@@ -57,12 +60,13 @@ export function renderChat(root) {
     const message = input.value.trim(); if ((!message && !image) || send.disabled) return;
     recognition?.abort(); const photo = image; closeMenu(); menuButton.disabled = true; attach.disabled = takePhoto.disabled = camera.disabled = picker.disabled = remove.disabled = voice.disabled = input.disabled = true;
     controller = new AbortController(); send.disabled = true; send.hidden = true; stop.disabled = false; error.textContent = '';
+    followReply = true;
     add('你', message || '请帮我解释这张图片中的学习问题。', photo); const answer = add('助手', '正在思考…'); let received = false;
     try {
       const response = await fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message, history, image:photo}), signal:controller.signal });
       if (!response.ok) { const data = await response.json(); throw new Error(data.error || '无法连接学习助手。'); }
       const reader = response.body.getReader(), decoder = new TextDecoder(); let buffer = '', done = false;
-      const consume = line => { if (!line) return; const data = JSON.parse(line); if (data.type === 'error') throw new Error(data.error); if (data.type === 'text') { if (!received) answer.textContent = ''; received = true; answer.textContent += data.text; } if (data.type === 'done') done = true; };
+      const consume = line => { if (!line) return; const data = JSON.parse(line); if (data.type === 'error') throw new Error(data.error); if (data.type === 'text') { if (!received) answer.textContent = ''; received = true; answer.textContent += data.text; if (followReply) scrollToBottom(); } if (data.type === 'done') done = true; };
       while (true) { const chunk = await reader.read(); if (chunk.done) break; buffer += decoder.decode(chunk.value, {stream:true}); let index; while ((index = buffer.indexOf('\n')) !== -1) { consume(buffer.slice(0,index)); buffer = buffer.slice(index+1); } }
       buffer += decoder.decode(); if (buffer.trim()) consume(buffer);
       if (!done) throw new Error('回答中断，请重试。');
