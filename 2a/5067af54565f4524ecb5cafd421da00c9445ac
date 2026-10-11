@@ -1,0 +1,30 @@
+src/styles.css
+  s_fdf9b424780d0f::t_9ab42939acb1d6 359,1126-1140,1142-1143,1148-1149,1155-1158,1161-1162,1165
+  s_fdf9b424780d0f::t_498c1b1faf31cf 1125,1141,1144-1147,1150-1154,1159-1160,1163-1164
+  s_fdf9b424780d0f::t_3ec54f6008feae 353-358
+src/platform/tasks/page.js
+  s_fdf9b424780d0f::t_498c1b1faf31cf 41,43-48
+  s_fdf9b424780d0f::t_d1627862370e0c 2,13,40
+spec.md
+  s_fdf9b424780d0f::t_89be36df6fa18a 95
+src/platform/tasks/model.js
+  s_fdf9b424780d0f::t_1a53f3912930a4 2,14-18
+tests/core.test.js
+  s_fdf9b424780d0f::t_a5e53fcd76cbb8 20-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2a5067af54565f4524ecb5cafd421da00c9445ac",
+  "prompts": {},
+  "sessions": {
+    "s_fdf9b424780d0f": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129b9-7a31-7232-b212-0479cd2d411e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
