@@ -18,3 +18,14 @@ test('all account roles put logout inside the avatar popover', () => {
   }
   assert.equal((source.match(/\$\{accountMenu\(\)\}/g) || []).length, 2);
 });
+
+test('avatar shows the first name character without a separate username', () => {
+  for (const [name, initial] of [['小雨', '小'], [' Meng Sun ', 'M'], ['𠮷田', '𠮷'], ['<名字>', '&lt;']]) {
+    const html = runInNewContext(`${menuFunction}\naccountMenu()`, {
+      user: { role: 'admin', name },
+      escape: value => value.replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
+    });
+    assert.ok(html.includes(`>${initial}</button><div id="account-menu"`));
+    assert.ok(!html.includes('</button><span>'));
+  }
+});

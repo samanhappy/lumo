@@ -8,7 +8,7 @@ import { learningApps, markAppUsed } from './platform/learning-apps/registry.js'
 import { icon, navigate, notify, escape } from './ui.js';
 const app = document.querySelector('#app');
 function accountMenu() {
-  return `<div class="sidebar-bottom"><button class="avatar account-trigger" popovertarget="account-menu" aria-label="打开用户菜单" title="${user.role === 'admin' ? escape(user.name) : `关联学生：${escape(student.name)}`}">☀</button><span>${escape(user.name)}</span><div id="account-menu" class="account-menu" popover><strong>${escape(user.name)}</strong><button class="quiet" id="logout">退出登录 <span aria-hidden="true">↪</span></button></div></div>`;
+  return `<div class="sidebar-bottom"><button class="avatar account-trigger" popovertarget="account-menu" aria-label="打开用户菜单" title="${user.role === 'admin' ? escape(user.name) : `关联学生：${escape(student.name)}`}">${escape(Array.from(user.name.trim())[0] || '?')}</button><div id="account-menu" class="account-menu" popover><strong>${escape(user.name)}</strong><button class="quiet" id="logout">退出登录 <span aria-hidden="true">↪</span></button></div></div>`;
 }
 async function render() {
   if (!user) return showLogin();
