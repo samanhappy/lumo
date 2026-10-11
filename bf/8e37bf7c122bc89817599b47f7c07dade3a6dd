@@ -1,0 +1,24 @@
+src/learning-apps/irregular-verbs/app.js
+  s_a34030dc9f3e01::t_a133e5de984655 49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bf8e37bf7c122bc89817599b47f7c07dade3a6dd",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a34030dc9f3e01": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12a2c-a75f-70a3-bbcf-4f17b7cbd8e2",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
