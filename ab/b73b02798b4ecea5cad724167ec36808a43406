@@ -1,0 +1,26 @@
+src/learning-apps/irregular-verbs/app.js
+  s_a34030dc9f3e01::t_0835b009e0dd30 52-55,63-64,68,71
+tests/irregular-verbs-study.test.js
+  s_a34030dc9f3e01::t_cb04674e414bf5 1-71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "abb73b02798b4ecea5cad724167ec36808a43406",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a34030dc9f3e01": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12a2c-a75f-70a3-bbcf-4f17b7cbd8e2",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
