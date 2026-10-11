@@ -1,10 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { saveTask, toggleTask, localDate, shiftDate, orderedTasks, reorderTask, storeTasks, loadTasks } from '../src/platform/tasks/model.js';
+import { saveTask, toggleTask, localDate, shiftDate, orderedTasks, reorderTask, storeTasks, loadTasks, preferredTaskStatus } from '../src/platform/tasks/model.js';
 import { WORDS, optionsFor, isCorrect, updateMastery, createDeck } from '../src/learning-apps/irregular-verbs/domain.js';
 import { irregularVerbs } from '../src/learning-apps/irregular-verbs/app.js';
 import { loadState, saveState, emptyState } from '../src/learning-apps/irregular-verbs/repository.js';
 const memory=new Map();globalThis.localStorage={getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,v)};
+test('date selection prefers pending unless only completed tasks exist',()=>{
+ for(const [completed,status] of [[[],'pending'],[[false],'pending'],[[true],'completed'],[[false,true],'pending']]){
+  const tasks=completed.map(value=>({student_id:'a',date:'2026-10-11',completed:value}));
+  tasks.push({student_id:'b',date:'2026-10-11',completed:false},{student_id:'a',date:'2026-10-12',completed:false});
+  assert.equal(preferredTaskStatus(orderedTasks(tasks,'a','2026-10-11')),status);
+ }
+});
 test('daily task CRUD, student isolation, completion timestamps and local dates',()=>{
  let tasks=saveTask([],{title:' 数学 P32 ',date:'2026-10-07',type:'HOMEWORK'},'a','created');
  const id=tasks[0].id;assert.equal(tasks[0].title,'数学 P32');assert.equal(tasks[0].completed_at,null);

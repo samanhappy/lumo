@@ -51,6 +51,9 @@ export function orderedTasks(tasks, studentId, date) {
   return tasks.filter(t => t.student_id === studentId && t.date === date)
     .sort((a, b) => Number(a.completed) - Number(b.completed));
 }
+export function preferredTaskStatus(tasks) {
+  return tasks.length && tasks.every(t => t.completed) ? 'completed' : 'pending';
+}
 export function reorderTask(tasks, id, targetId, studentId, date) {
   const group = orderedTasks(tasks, studentId, date);
   const from = group.findIndex(t => t.id === id), to = group.findIndex(t => t.id === targetId);

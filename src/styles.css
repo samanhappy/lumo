@@ -1850,3 +1850,8 @@ input:focus {
 .today-page .task-drag { cursor: grab; touch-action: none; flex-shrink: 0; color: #9da3bb; }
 .today-page .task-row.dragging { background: #f3f0ff; }
 .today-page .task-row.dragging .task-drag { cursor: grabbing; }
+
+.today-page .task-tabs { display: flex; gap: 24px; flex-shrink: 0; border-bottom: 1px solid var(--line); }
+.today-page .task-tabs button { background: transparent; color: var(--muted); border: 0; border-bottom: 2px solid transparent; padding: 14px 0; font: inherit; cursor: pointer; }
+.today-page .task-tabs button[aria-selected="true"] { color: var(--purple); border-bottom-color: var(--purple); }
+.today-page .task-tabs span { margin-left: 6px; font-size: 13px; }
