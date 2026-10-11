@@ -1,0 +1,41 @@
+ai.js
+  s_c664a62ae909a1::t_5649adcb91bd7d 45
+src/platform/chat/page.js
+  s_c664a62ae909a1::t_ebbaaba6aa1daa 16-18,53,63,69
+README.md
+  s_2e3fe20f552f38::t_bba09c08b63c29 126,134,146
+package.json
+  s_2e3fe20f552f38::t_7d629e2ffd0e2d 7-8
+src/styles.css
+  s_c664a62ae909a1::t_0e95456104e9ae 1735-1740,1742,1778
+  s_c664a62ae909a1::t_0ef9f6fd286a94 1725-1729,1741,1776-1777
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "05432c04ece9865314d03fc7ada5396c07a81a3f",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_2e3fe20f552f38": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129ca-1319-7770-b1aa-d9e3febf29b4",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    },
+    "s_c664a62ae909a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129cc-b80a-7831-8a2f-734b481b4a81",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
