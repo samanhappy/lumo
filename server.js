@@ -5,9 +5,9 @@ import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openDatabase } from './database.js';
 import { createAuth, scopedKey, studentSnapshot } from './auth.js';
-const auth = createAuth();
 let database;
 try { database = await openDatabase(); } catch { console.error('数据库初始化失败，请检查连接配置与数据库状态。'); process.exit(1); }
+const auth = createAuth(undefined, database);
 const legacy = await database.snapshot(), imported = {};
 for (const key of ['lumo:daily_task','lumo:student_app','lumo:iv:local-student']) if (legacy[key]) {
   let value = legacy[key].value;
@@ -29,8 +29,8 @@ const server = http.createServer(async (req, res) => {
       try {
         if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}` && req.headers.origin !== `https://${req.headers.host}`) throw Object.assign(new Error('请求来源无效。'), { status: 403 });
         if (req.method === 'GET' && pathname === '/api/health') { await database.health(); res.end(JSON.stringify({ status: 'ok' })); return; }
-        if (req.method === 'GET' && pathname === '/api/auth/me') { res.end(JSON.stringify(auth.user(req))); return; }
-        const user = pathname === '/api/auth/login' ? null : auth.user(req);
+        if (req.method === 'GET' && pathname === '/api/auth/me') { res.end(JSON.stringify(await auth.user(req))); return; }
+        const user = pathname === '/api/auth/login' ? null : await auth.user(req);
         if (req.method === 'GET' && pathname === '/api/storage') { res.end(JSON.stringify(await studentSnapshot(database, user))); return; }
         if (req.method !== 'POST' || !['/api/storage', '/api/storage/migrate', '/api/auth/login', '/api/auth/logout', '/api/chat', '/api/homework/recognize'].includes(pathname)) { res.writeHead(404).end(JSON.stringify({ error: '接口不存在。' })); return; }
         if (!req.headers['content-type']?.startsWith('application/json')) throw Object.assign(new Error('请使用 JSON 数据。'), { status: 415 });
@@ -68,7 +68,7 @@ const server = http.createServer(async (req, res) => {
         }
         const cookie = token => `lumo_session=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${token ? 43200 : 0}${process.env.COOKIE_SECURE === 'true' ? '; Secure' : ''}`;
         if (pathname === '/api/auth/login') { const login = await auth.login(input, req.socket.remoteAddress); res.setHeader('Set-Cookie', cookie(login.token)); res.end(JSON.stringify(login.user)); return; }
-        if (pathname === '/api/auth/logout') { auth.logout(req); res.setHeader('Set-Cookie', cookie('')); res.end('{}'); return; }
+        if (pathname === '/api/auth/logout') { await auth.logout(req); res.setHeader('Set-Cookie', cookie('')); res.end('{}'); return; }
         let result;
         if (pathname.endsWith('/migrate')) {
           if (user.role !== 'student' || user.student.id !== 'local-student') throw Object.assign(new Error('该账号不能导入旧版数据。'), { status: 403 });

@@ -1,20 +1,21 @@
-import { randomBytes, scryptSync, scrypt as derive, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, scryptSync, scrypt as derive, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 const scrypt = promisify(derive);
 const fail = (message, status) => Object.assign(new Error(message), { status });
-export function createAuth(raw = process.env.LUMO_USERS) {
+export function createAuth(raw = process.env.LUMO_USERS, store) {
   if (!raw && process.env.NODE_ENV === 'production') throw new Error('生产环境必须配置 LUMO_USERS。');
   const config = JSON.parse(raw || '[{"username":"student","password":"student123","role":"student","studentId":"local-student","name":"小雨"},{"username":"parent","password":"parent123","role":"parent","studentId":"local-student","name":"小雨家长"}]');
   if (!Array.isArray(config) || !config.length || config.length > 100) throw new Error('账号配置无效。');
   const users = new Map();
   for (const u of config) {
     if (!u || !/^[a-zA-Z0-9_-]{1,40}$/.test(u.username) || users.has(u.username) || !['student','parent'].includes(u.role) || !/^[a-zA-Z0-9_-]{1,80}$/.test(u.studentId) || typeof u.password !== 'string' || u.password.length < 8 || u.password.length > 128 || typeof u.name !== 'string' || !u.name.trim() || u.name.length > 40) throw new Error('账号配置无效：用户名唯一，密码至少 8 位，需指定角色、姓名与 studentId。');
-    const salt = randomBytes(16); users.set(u.username, { ...u, password: undefined, salt, hash: scryptSync(u.password, salt, 32) });
+    const salt = randomBytes(16); users.set(u.username, { ...u, password: undefined, credential: scryptSync(JSON.stringify([u.password, u.role, u.studentId]), u.username, 32).toString('hex'), salt, hash: scryptSync(u.password, salt, 32) });
   }
   for (const u of users.values()) if (![...users.values()].some(s => s.role === 'student' && s.studentId === u.studentId)) throw new Error('家长必须关联已配置的学生。');
-  // ponytail: process-local sessions; use a shared session store when deploying multiple app replicas.
+  // Tests without a database use process-local sessions.
   const sessions = new Map(), failures = new Map();
   const publicUser = u => ({ username: u.username, name: u.name, role: u.role, student: { id: u.studentId, name: [...users.values()].find(s => s.role === 'student' && s.studentId === u.studentId).name, grade: '' } });
+  const digest = token => createHash('sha256').update(token).digest('hex');
   const dummy = randomBytes(16);
   function prune() { const now = Date.now(); for (const [k,v] of sessions) if (v.expires <= now) sessions.delete(k); for (const [k,v] of failures) if (v.until <= now) failures.delete(k); }
   return {
@@ -28,12 +29,21 @@ export function createAuth(raw = process.env.LUMO_USERS) {
       if (!u || !timingSafeEqual(hash, u.hash)) throw fail('用户名或密码错误。', 401);
       failures.delete(key);
       if (sessions.size >= 1000) throw fail('登录会话过多，请稍后重试。', 429);
-      const token = randomBytes(32).toString('hex'); sessions.set(token, { user: publicUser(u), expires: Date.now() + 43200000 });
+      const token = randomBytes(32).toString('hex'), expires = Date.now() + 43200000;
+      if (store) await store.createSession(digest(token), u.username, u.credential, expires);
+      else sessions.set(token, { user: publicUser(u), expires });
       return { token, user: publicUser(u) };
     },
     token(req) { return /(?:^|;\s*)lumo_session=([a-f0-9]{64})(?:;|$)/.exec(req.headers.cookie || '')?.[1]; },
-    user(req) { prune(); const session = sessions.get(this.token(req)); if (!session) throw fail('请先登录。', 401); return session.user; },
-    logout(req) { sessions.delete(this.token(req)); }
+    async user(req) {
+      const token = this.token(req);
+      if (store) {
+        const session = token && await store.getSession(digest(token)), u = session && users.get(session.username);
+        if (!u || session.credential !== u.credential) throw fail('请先登录。', 401);
+        return publicUser(u);
+      }
+      prune(); const session = sessions.get(this.token(req)); if (!session) throw fail('请先登录。', 401); return session.user; },
+    async logout(req) { const token = this.token(req); if (store && token) await store.deleteSession(digest(token)); else sessions.delete(token); }
   };
 }
 export function scopedKey(user, key, value, writing = false) {

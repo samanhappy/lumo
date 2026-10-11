@@ -123,7 +123,7 @@ TEST_DATABASE_URL=postgresql://user:password@localhost:5432/lumo_test npm test
 
 学生端管理和完成作业、进行学习练习；家长端查看关联孩子的事项及学习概况、管理作业，不能提交学习记录。数据接口在服务端强制检查登录、角色和学生范围。原来的小雨作业及练习记录自动迁入 `local-student`，保留旧数据；已有浏览器数据仅由关联该 ID 的学生账号导入。
 
-本地 `npm run dev` 无配置时提供 `student / student123` 和 `parent / parent123`，仅用于开发。自定义账号可使用 `LUMO_USERS='[...]' npm run dev`；`npm run dev` 和 `npm start` 默认读取 `.env`（文件不存在也可启动），已有环境变量优先；Docker Compose 也会读取。正式部署必须修改示例密码。密码使用 scrypt 校验，浏览器只持有 HttpOnly、SameSite=Strict 会话 cookie，会话 12 小时有效，退出立即失效；登录失败会限速。HTTPS 部署设置 `COOKIE_SECURE=true`。
+本地 `npm run dev` 无配置时提供 `student / student123` 和 `parent / parent123`，仅用于开发。自定义账号可使用 `LUMO_USERS='[...]' npm run dev`；`npm run dev` 和 `npm start` 默认读取 `.env`（文件不存在也可启动），已有环境变量优先；Docker Compose 也会读取。正式部署必须修改示例密码。密码使用 scrypt 校验，浏览器只持有 HttpOnly、SameSite=Strict 会话 cookie，会话保存在数据库中，部署或重启后仍有效；12 小时后过期，退出立即失效，修改密码或账号权限后旧会话失效；登录失败会限速。HTTPS 部署设置 `COOKIE_SECURE=true`。
 
 会话保存在服务进程内，重启需要重新登录；当前 Compose 单个 app 实例适用。账号配置更新后重启 app 即生效：`docker compose up -d --force-recreate app`。无注册、找回密码或账户管理界面。
 

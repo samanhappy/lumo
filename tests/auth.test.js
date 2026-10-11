@@ -16,8 +16,8 @@ test('preconfigured login, session logout, student isolation and parent write pe
   const a = await auth.login({username:'alice',password:'password-a'},'ip');
   assert.equal(a.user.password,undefined);
   const request={headers:{cookie:`lumo_session=${a.token}`}};
-  assert.equal(auth.user(request).student.id,'alice');
-  assert.throws(()=>auth.user({headers:{}}),{status:401});
+  assert.equal((await auth.user(request)).student.id,'alice');
+  await assert.rejects(()=>auth.user({headers:{}}),{status:401});
   const b=await auth.login({username:'bob',password:'password-b'},'ip');
   const p=await auth.login({username:'parent',password:'password-p'},'ip');
   assert.throws(()=>scopedKey(a.user,'lumo:iv:bob'),{status:403});
@@ -33,8 +33,32 @@ test('preconfigured login, session logout, student isolation and parent write pe
     assert.deepEqual(await studentSnapshot(db,b.user),{});
     assert.throws(()=>db.save(key,[],0),{status:409});
   } finally {await db.close();await rm(dir,{recursive:true,force:true});}
-  auth.logout(request);assert.throws(()=>auth.user(request),{status:401});
+  await auth.logout(request);await assert.rejects(()=>auth.user(request),{status:401});
   for(let i=0;i<10;i++)await assert.rejects(auth.login({username:'missing',password:'wrong'},'blocked'),{status:401});
   await assert.rejects(auth.login({username:'alice',password:'password-a'},'blocked'),{status:429});
   assert.throws(()=>createAuth('[{"username":"bad"}]'));
+});
+
+test('database sessions survive restart, expire, revoke logout and reject changed accounts', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'lumo-session-'));
+  const path = join(dir, 'auth.sqlite');
+  const raw = JSON.stringify([{username:'alice',password:'password-a',role:'student',studentId:'alice',name:'Alice'}]);
+  let db = await openDatabase(path);
+  try {
+    const login = await createAuth(raw, db).login({username:'alice',password:'password-a'}, 'ip');
+    const req = {headers:{cookie:`lumo_session=${login.token}`}};
+    await db.close(); db = await openDatabase(path);
+    const auth = createAuth(raw, db);
+    assert.equal((await auth.user(req)).username, 'alice');
+    assert.deepEqual(await db.snapshot(), {});
+    await assert.rejects(createAuth(raw.replace('password-a','password-b'), db).user(req), {status:401});
+    await assert.rejects(auth.user({headers:{cookie:`lumo_session=${'0'.repeat(64)}`}}), {status:401});
+    const { createHash } = await import('node:crypto');
+    const expired = '1'.repeat(64);
+    await db.createSession(createHash('sha256').update(expired).digest('hex'), 'alice', '', Date.now() - 1);
+    assert.equal(await db.getSession(createHash('sha256').update(expired).digest('hex')), undefined);
+    await assert.rejects(auth.user({headers:{cookie:`lumo_session=${expired}`}}), {status:401});
+    await auth.logout(req);
+    await assert.rejects(createAuth(raw, db).user(req), {status:401});
+  } finally { await db.close(); await rm(dir, {recursive:true,force:true}); }
 });

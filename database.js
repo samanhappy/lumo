@@ -17,7 +17,15 @@ export async function openDatabase(path) {
   mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec('PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS app_data (key TEXT PRIMARY KEY, value TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1)');
+  db.exec('CREATE TABLE IF NOT EXISTS auth_sessions (token TEXT PRIMARY KEY, username TEXT NOT NULL, credential TEXT NOT NULL, expires BIGINT NOT NULL)');
   return {
+    createSession(token, username, credential, expires) {
+      db.prepare('DELETE FROM auth_sessions WHERE expires <= ?').run(Date.now());
+      if (db.prepare('SELECT COUNT(*) AS count FROM auth_sessions').get().count >= 1000) throw Object.assign(new Error('登录会话过多，请稍后重试。'), { status: 429 });
+      db.prepare('INSERT INTO auth_sessions VALUES (?,?,?,?)').run(token, username, credential, expires);
+    },
+    getSession(token) { return db.prepare('SELECT username,credential FROM auth_sessions WHERE token=? AND expires>?').get(token, Date.now()); },
+    deleteSession(token) { db.prepare('DELETE FROM auth_sessions WHERE token=?').run(token); },
     snapshot() { return Object.fromEntries(db.prepare('SELECT * FROM app_data').all().map(row => [row.key, { value: JSON.parse(row.value), revision: row.revision }])); },
     save(key, value, revision) {
       validateWrite(key, value, revision);
@@ -44,9 +52,19 @@ async function openPostgres() {
   const { Pool } = await import('pg');
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5, connectionTimeoutMillis: 5000, statement_timeout: 10000 });
   pool.on('error', () => console.error('PostgreSQL 空闲连接中断，后续请求将重新连接。'));
-  try { await pool.query('CREATE TABLE IF NOT EXISTS app_data (key TEXT PRIMARY KEY, value JSONB NOT NULL, revision INTEGER NOT NULL DEFAULT 1)'); }
+  try {
+    await pool.query('CREATE TABLE IF NOT EXISTS app_data (key TEXT PRIMARY KEY, value JSONB NOT NULL, revision INTEGER NOT NULL DEFAULT 1)');
+    await pool.query('CREATE TABLE IF NOT EXISTS auth_sessions (token TEXT PRIMARY KEY, username TEXT NOT NULL, credential TEXT NOT NULL, expires BIGINT NOT NULL)');
+  }
   catch (error) { await pool.end(); throw error; }
   return {
+    async createSession(token, username, credential, expires) {
+      await pool.query('DELETE FROM auth_sessions WHERE expires <= $1', [Date.now()]);
+      const result = await pool.query('INSERT INTO auth_sessions (token,username,credential,expires) SELECT $1,$2,$3,$4 WHERE (SELECT COUNT(*) FROM auth_sessions) < 1000', [token, username, credential, expires]);
+      if (!result.rowCount) throw Object.assign(new Error('登录会话过多，请稍后重试。'), { status: 429 });
+    },
+    async getSession(token) { return (await pool.query('SELECT username,credential FROM auth_sessions WHERE token=$1 AND expires>$2', [token, Date.now()])).rows[0]; },
+    async deleteSession(token) { await pool.query('DELETE FROM auth_sessions WHERE token=$1', [token]); },
     async snapshot() {
       const { rows } = await pool.query('SELECT key,value,revision FROM app_data');
       return Object.fromEntries(rows.map(row => [row.key, { value: row.value, revision: row.revision }]));

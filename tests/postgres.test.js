@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync, chmodSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createAuth } from '../auth.js';
 import { openDatabase } from '../database.js';
 
 test('PostgreSQL persists data, protects concurrent writes, rolls back batches and imports SQLite', { skip: !process.env.TEST_DATABASE_URL }, async () => {
@@ -20,6 +21,9 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     process.env.DATABASE_URL = url.toString();
     db = await openDatabase();
     await db.health();
+    const auth = createAuth(undefined, db);
+    const login = await auth.login({username:'student',password:'student123'}, 'ip');
+    const request = {headers:{cookie:`lumo_session=${login.token}`}};
     assert.equal(await db.save('lumo:daily_task', [{ title: '数学 P32', completed: false }], 0), 1);
     await db.migrate({ 'lumo:daily_task': [], 'lumo:iv:local-student': { mastery: {}, active: null, sessions: [], attempts: [] } });
     assert.equal((await db.snapshot())['lumo:daily_task'].value[0].title, '数学 P32');
@@ -30,6 +34,10 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     await assert.rejects(db.migrate({ 'lumo:student_app': { inserted: true }, 'lumo:iv:bad': { invalid: 1n } }), /BigInt/);
     assert.equal((await db.snapshot())['lumo:student_app'], undefined);
     await db.close(); db = await openDatabase();
+    const restartedAuth = createAuth(undefined, db);
+    assert.equal((await restartedAuth.user(request)).username, 'student');
+    await restartedAuth.logout(request);
+    await assert.rejects(auth.user(request), {status:401});
     assert.equal((await db.snapshot())['lumo:daily_task'].revision, 2);
     const path = join(dir, 'source.sqlite');
     const source = await openDatabase(path);
