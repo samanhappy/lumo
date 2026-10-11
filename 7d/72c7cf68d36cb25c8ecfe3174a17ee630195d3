@@ -1,0 +1,28 @@
+src/styles.css
+  s_202bdeedbaaa9c::t_7ee718d4be7275 1947-1964
+tests/account-menu.test.js
+  s_202bdeedbaaa9c::t_6f7e471624ec05 1-20
+src/main.js
+  s_202bdeedbaaa9c::t_7ee718d4be7275 10-12,18,39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7d72c7cf68d36cb25c8ecfe3174a17ee630195d3",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_202bdeedbaaa9c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b1c-3576-7ee0-be84-0f491ebe99ca",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
