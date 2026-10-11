@@ -32,7 +32,7 @@ npm test
 
 练习优先抽取掌握度低的 10 个词；错题重练只抽取最近一次答错的词。答对掌握度 +25，答错 -35，范围 0–100，达到 75 计为已掌握。词卡浏览不提升掌握度。答案提交后立即持久化，未完成会话可恢复；结果为实际练习统计，无 AI 生成。
 
-保留 `过去式探险.html` 作为原始参考。原生模块实现，无新增框架或构建工具，PostgreSQL 通过 pg 驱动接入；已增加 AI 学习助手和图片识别；语音和积分商城尚未实现。
+保留 `过去式探险.html` 作为原始参考。原生模块实现，无新增框架或构建工具，PostgreSQL 通过 pg 驱动接入；已增加 AI 学习助手和图片识别；已支持浏览器语音转文字，积分商城尚未实现。
 
 ## 作业拍照导入
 
@@ -129,7 +129,7 @@ TEST_DATABASE_URL=postgresql://user:password@localhost:5432/lumo_test npm test
 
 ### pi 学习助手
 
-学习助手入口为 `/chat`。后端使用固定版本的 `@earendil-works/pi-ai` 和 `@earendil-works/pi-agent-core`，支持多轮文本咨询、流式回答、停止生成，以及查询当前登录账号关联学生指定日期的作业。工具只读，无法修改作业。图片导入使用单独配置的 pi 视觉模型。
+学习助手入口为 `/chat`。后端使用固定版本的 `@earendil-works/pi-ai` 和 `@earendil-works/pi-agent-core`，支持多轮文本咨询、流式回答、停止生成，以及查询当前登录账号关联学生指定日期的作业。工具只读，无法修改作业。图片导入和图片提问使用单独配置的 pi 视觉模型。聊天加号菜单支持上传图片和相机拍照（移动端优先后置相机，桌面浏览器可能显示文件选择器）。聊天支持 JPG、PNG、WebP（原图最多 20 MB，压缩后最多 3 MB），可只发送图片；后续对话需要参考原图时，请再次附图。语音输入使用浏览器 SpeechRecognition，识别后可编辑再发送，需要支持该接口的浏览器、麦克风权限和 HTTPS（localhost 除外）；识别服务可能需要联网。
 
 配置 `LUMO_AI_PROVIDER`（`deepseek` 或 `openai`）、`LUMO_AI_MODEL`（安装版本 pi 模型目录中的 ID）和对应的 `DEEPSEEK_API_KEY` / `OPENAI_API_KEY`。缺少配置时助手返回明确提示，其他功能正常使用。普通 `npm run dev` 不自动读取 `.env`；本地可用 `node --env-file=.env server.js`，Docker Compose 已传递这些配置。密钥仅由后端读取，勿提交真实密钥。
 

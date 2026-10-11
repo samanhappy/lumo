@@ -82,3 +82,24 @@ test('chat accepts a completed fifth model turn but never requests a sixth turn'
   faux.setResponses([step(),step(),step(),step(),step(),fauxAssistantMessage('不应调用')]);
   const before=faux.state.callCount; await assert.rejects(chat({message:'查询作业'},user),{status:422});assert.equal(faux.state.callCount-before,5);
 });
+test('chat image input is validated and sent to the vision model with scoped tools', async () => {
+  const faux = fauxProvider({provider:'openai',models:[{id:'chat-vision',input:['text','image']}]});
+  const models = createModels(); models.setProvider(faux.provider);
+  faux.setResponses([context => {
+    assert.match(JSON.stringify(context), /"type":"image"/);
+    assert.match(JSON.stringify(context), /解释这张图片/);
+    return fauxAssistantMessage('先观察题目。');
+  }]);
+  const chat = createChatService({database, models, env:{LUMO_VISION_MODEL:'chat-vision',OPENAI_API_KEY:'test'}});
+  let text = ''; await chat({message:'',image:photoInput},user,{onText:delta=>text+=delta});
+  assert.equal(text,'先观察题目。');
+  assert.throws(()=>validateChat({message:'',image:{mimeType:'image/png',data:'abcd'}}),{status:400});
+  assert.throws(()=>validateChat({message:''}),{status:400});
+});
+test('image chat rejects a text-only vision model before invoking it', async () => {
+  const faux = fauxProvider({provider:'openai',models:[{id:'text',input:['text']}]});
+  const models = createModels(); models.setProvider(faux.provider);
+  const chat = createChatService({database,models,env:{LUMO_VISION_MODEL:'text',OPENAI_API_KEY:'test'}});
+  await assert.rejects(chat({message:'看看',image:photoInput},user),{status:503});
+  assert.equal(faux.state.callCount,0);
+});

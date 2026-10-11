@@ -27,23 +27,28 @@ async function photoCanvas(file) {
   } finally { URL.revokeObjectURL(url); }
 }
 
+export async function preparePhoto(file) {
+  validatePhoto(file);
+  const canvas = await photoCanvas(file);
+  try {
+    const data = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+    if (data.length > 4 * 1024 * 1024) throw new Error('处理后的图片超过 3 MB，请裁剪后重试。');
+    return { mimeType: 'image/jpeg', data };
+  } finally { canvas.width = canvas.height = 0; }
+}
+
 export async function recognizePhoto(file, { signal, onProgress = () => {} } = {}) {
   validatePhoto(file);
   if (signal?.aborted) throw new DOMException('已取消识别', 'AbortError');
-  let canvas;
-  try {
-    onProgress('正在准备图片…');
-    canvas = await photoCanvas(file);
-    const data = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-    if (data.length > 4 * 1024 * 1024) throw new Error('处理后的图片超过 3 MB，请裁剪到作业区域后重试。');
-    if (signal?.aborted) throw new DOMException('已取消识别', 'AbortError');
-    onProgress('正在使用模型识别作业…');
-    const response = await fetch('/api/homework/recognize', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mimeType: 'image/jpeg', data }), signal
-    });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || '图片识别失败，请重试。');
-    return result;
-  } finally { if (canvas) canvas.width = canvas.height = 0; }
+  onProgress('正在准备图片…');
+  const image = await preparePhoto(file);
+  if (signal?.aborted) throw new DOMException('已取消识别', 'AbortError');
+  onProgress('正在使用模型识别作业…');
+  const response = await fetch('/api/homework/recognize', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(image), signal
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || '图片识别失败，请重试。');
+  return result;
 }
