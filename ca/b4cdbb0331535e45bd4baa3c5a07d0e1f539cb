@@ -1,0 +1,29 @@
+tests/account-menu.test.js
+  s_202bdeedbaaa9c::t_b4c1bd550b7ab5 21-31
+src/main.js
+  s_202bdeedbaaa9c::t_b4c1bd550b7ab5 11
+src/styles.css
+  s_202bdeedbaaa9c::t_b67ba32c6e4d98 134
+  s_202bdeedbaaa9c::t_e92312348f4488 1949,1962
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "cab4cdbb0331535e45bd4baa3c5a07d0e1f539cb",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_202bdeedbaaa9c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b1c-3576-7ee0-be84-0f491ebe99ca",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
