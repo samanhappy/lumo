@@ -1,0 +1,31 @@
+tests/ai.test.js
+  s_18893e1fcfdd3c::t_c44849790afe2c 32,52-59
+  s_18893e1fcfdd3c::t_bebb22220e0b3f 60
+tests/photo-import.test.js
+  s_18893e1fcfdd3c::t_db98dcf8164391 39-45
+ai.js
+  s_18893e1fcfdd3c::t_9e46c0b480e1fb 105
+src/platform/tasks/model.js
+  s_18893e1fcfdd3c::t_db98dcf8164391 42-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ad2a8d0f99e0b1f052889430c862438247ac01fd",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_18893e1fcfdd3c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129fc-196b-7692-a686-e32b174c38dd",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
