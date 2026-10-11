@@ -39,7 +39,9 @@ export function importHomework(tasks, text, date, studentId) {
     if (next.some(task => task.student_id === studentId && task.date === date && task.title === title)) {
       skipped++; continue;
     }
-    next = saveTask(next, { title, date, type: 'HOMEWORK' }, studentId);
+    const subjects = SUBJECTS.filter(subject => subject !== '其他' && title.includes(subject));
+    const subject = subjects.length === 1 ? subjects[0] : '';
+    next = saveTask(next, { title, subject, date, type: 'HOMEWORK' }, studentId);
     added++;
   }
   return { tasks: next, added, skipped };

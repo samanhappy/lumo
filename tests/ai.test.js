@@ -29,6 +29,7 @@ test('unconfigured chat fails clearly without invoking a model',async()=>{
 
 import { createPhotoService, validateHomeworkPhoto, parseHomeworkPhoto } from '../ai.js';
 import { readFile } from 'node:fs/promises';
+import { importHomework } from '../src/platform/tasks/model.js';
 const photoInput = {mimeType:'image/png', data:(await readFile(new URL('./fixtures/homework.png',import.meta.url))).toString('base64')};
 test('photo model receives the image, returns reviewed lines and warnings, never accesses storage',async()=>{
   const faux=fauxProvider({provider:'openai',models:[{id:'vision-test',input:['text','image']}]});
@@ -47,6 +48,15 @@ test('photo validation rejects disguised and oversized data; malformed model out
   for(const input of [{mimeType:'image/jpeg',data:photoInput.data},{mimeType:'image/png',data:'not base64'}, {mimeType:'image/png',data:'A'.repeat(4*1024*1024+4)}]) assert.throws(()=>validateHomeworkPhoto(input),{status:400});
   for(const text of ['hello', '{"items":["数学\\n英语"],"warnings":[]}',JSON.stringify({items:['字'.repeat(121)],warnings:[]})]) assert.throws(()=>parseHomeworkPhoto(text),{status:502});
   assert.deepEqual(parseHomeworkPhoto('```json\n{"items":[],"warnings":[]}\n```'),{text:'',warnings:[]});
+});
+
+test('separate assignments in the same subject remain separate through photo parsing and import', () => {
+  const items = ['语文 预K9', '语文 复听', '数学 计P32–33', '数学 补P29–30', '数学 大P39', '数学 书P39 练一练 4–7', '英语 KKL'];
+  const { text } = parseHomeworkPhoto(JSON.stringify({ items, warnings: [] }));
+  const { tasks, added } = importHomework([], text, '2026-10-11', 'a');
+  assert.equal(added, 7);
+  assert.deepEqual(tasks.map(task => task.title), items);
+  assert.deepEqual(tasks.map(task => task.subject), ['语文', '语文', '数学', '数学', '数学', '数学', '英语']);
 });
 test('text-only models and missing vision configuration fail before calling the provider',async()=>{
   const faux=fauxProvider({provider:'openai',models:[{id:'text-only',input:['text']}]});

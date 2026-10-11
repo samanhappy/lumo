@@ -36,3 +36,10 @@ test('photo validation rejects unsupported, empty and oversized files before cal
   const controller = new AbortController(); controller.abort();
   await assert.rejects(recognizePhoto({ type: 'image/png', size: 10 }, { signal: controller.signal }), { name: 'AbortError' });
 });
+
+test('photo import saves an unambiguous subject from reviewed text without changing titles', () => {
+  const titles = ['数学 大P39', '数学 补P29–30', '语文订正', '背诵英语', '预习 P12', '语文和英语订正'];
+  const result = importHomework([], titles.join('\n'), '2026-10-11', 'a');
+  assert.deepEqual(result.tasks.map(task => task.subject), ['数学', '数学', '语文', '英语', '', '']);
+  assert.deepEqual(result.tasks.map(task => task.title), titles);
+});
