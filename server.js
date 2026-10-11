@@ -31,12 +31,15 @@ const server = http.createServer(async (req, res) => {
         if (req.method === 'GET' && pathname === '/api/health') { await database.health(); res.end(JSON.stringify({ status: 'ok' })); return; }
         if (req.method === 'GET' && pathname === '/api/auth/me') { res.end(JSON.stringify(await auth.user(req))); return; }
         const user = pathname === '/api/auth/login' ? null : await auth.user(req);
+        if (pathname === '/api/users' && req.method === 'GET') { res.end(JSON.stringify(await auth.listUsers(req))); return; }
+        if (user?.role === 'admin' && !['/api/users','/api/auth/logout'].includes(pathname)) throw Object.assign(new Error('管理员不能访问学生学习接口。'), { status: 403 });
         if (req.method === 'GET' && pathname === '/api/storage') { res.end(JSON.stringify(await studentSnapshot(database, user))); return; }
-        if (req.method !== 'POST' || !['/api/storage', '/api/storage/migrate', '/api/auth/login', '/api/auth/logout', '/api/chat', '/api/homework/recognize'].includes(pathname)) { res.writeHead(404).end(JSON.stringify({ error: '接口不存在。' })); return; }
+        if (req.method !== 'POST' || !['/api/users', '/api/storage', '/api/storage/migrate', '/api/auth/login', '/api/auth/logout', '/api/chat', '/api/homework/recognize'].includes(pathname)) { res.writeHead(404).end(JSON.stringify({ error: '接口不存在。' })); return; }
         if (!req.headers['content-type']?.startsWith('application/json')) throw Object.assign(new Error('请使用 JSON 数据。'), { status: 415 });
         const chunks = []; let size = 0;
         for await (const chunk of req) { size += chunk.length; if (size > 5 * 1024 * 1024) throw Object.assign(new Error('数据超过 5 MB，请减少记录。'), { status: 413 }); chunks.push(chunk); }
         let input; try { input = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw Object.assign(new Error('无效的 JSON。'), { status: 400 }); }
+        if (pathname === '/api/users') { res.end(JSON.stringify(await auth.saveUser(req, input))); return; }
         if (pathname === '/api/homework/recognize') {
           const controller = new AbortController();
           const disconnect = () => { if (!res.writableEnded) controller.abort(); };
@@ -80,7 +83,7 @@ const server = http.createServer(async (req, res) => {
       } catch (error) { res.writeHead(error.status || 500).end(JSON.stringify({ error: error.status ? error.message : '数据库保存失败，请重试。' })); }
       return;
     }
-    if (!(pathname === '/' || pathname === '/index.html' || pathname === '/public/favicon.png' || pathname === '/today' || pathname === '/chat' || pathname === '/login' || pathname.startsWith('/apps/') || pathname.startsWith('/src/') || pathname.startsWith('/public/ocr/') || pathname.startsWith('/node_modules/')) || pathname.includes('.sqlite')) { res.writeHead(403).end(); return; }
+    if (!(pathname === '/' || pathname === '/index.html' || pathname === '/public/favicon.png' || pathname === '/today' || pathname === '/chat' || pathname === '/login' || pathname === '/users' || pathname.startsWith('/apps/') || pathname.startsWith('/src/') || pathname.startsWith('/public/ocr/') || pathname.startsWith('/node_modules/')) || pathname.includes('.sqlite')) { res.writeHead(403).end(); return; }
     const path = resolve(root, '.' + pathname);
     if (pathname.includes('..') || (path !== resolve(root) && !path.startsWith(root.endsWith(sep) ? root : root + sep))) { res.writeHead(403).end(); return; }
     const file = extname(pathname) ? path : resolve(root, 'index.html');

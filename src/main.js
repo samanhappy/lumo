@@ -1,3 +1,4 @@
+import { renderUsers } from './platform/users/page.js';
 import { renderApps } from './platform/learning-apps/page.js';
 import { renderChat } from './platform/chat/page.js';
 import { initializeStorage } from './storage.js';
@@ -8,6 +9,7 @@ import { icon, navigate, notify, escape } from './ui.js';
 const app = document.querySelector('#app');
 async function render() {
   if (!user) return showLogin();
+  if (user.role === 'admin') return renderAdmin();
   const path=location.pathname.replace(/\/$/,'')||'/today';
   const entry=learningApps.find(a=>path===`/apps/${a.code}`||path.startsWith(`/apps/${a.code}/`));
   app.innerHTML=`<aside class="sidebar"><a class="logo" href="/today" aria-label="Lumo 首页">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a href="/chat" class="nav-item ${path==='/chat'?'active':''}">${icon('assistant')}<span>助手</span></a><a href="/today" class="nav-item ${path==='/today'?'active':''}">${icon('today')}<span>今日</span></a>${user.role==='student'?`<a href="/apps" class="nav-item ${path==='/apps'||entry?'active':''}">${icon('apps')}<span>应用</span></a>`:''}</nav><div class="sidebar-bottom"><div class="avatar" title="关联学生：${escape(student.name)}">☀</div><span>${escape(user.name)}</span><button class="quiet" id="logout">退出</button></div></aside><main id="main" tabindex="-1"></main>`;
@@ -29,13 +31,19 @@ document.addEventListener('click', e=>{
 });
 window.addEventListener('popstate',render);
 if(location.pathname==='/')history.replaceState({},'','/today');
+async function renderAdmin() {
+  if (location.pathname !== '/users') history.replaceState({}, '', '/users');
+  app.innerHTML = `<aside class="sidebar"><a class="logo" href="/users">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a class="nav-item active" href="/users" aria-current="page">${icon('apps')}<span>用户管理</span></a></nav><div class="sidebar-bottom"><span>${escape(user.name)}</span><button class="quiet" id="logout">退出</button></div></aside><main id="main" tabindex="-1"></main>`;
+  app.querySelector('#logout').onclick = async () => { try { await authRequest('/api/auth/logout', {}); location.replace('/login'); } catch(e) { notify(e.message); } };
+  await renderUsers(app.querySelector('#main'), authRequest, user);
+}
 async function authRequest(path, body) {
   const response = await fetch(path, body === undefined ? {} : { method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body) });
   const data = await response.json(); if (!response.ok) throw Object.assign(new Error(data.error || '登录失败。'), {status:response.status}); return data;
 }
 function showLogin() {
   app.innerHTML = `<main class="login-page"><form class="panel login-card"><a class="logo" href="/login">l<span>u</span>mo<i>✦</i></a><h1>欢迎回来</h1><label class="field">用户名<input name="username" autocomplete="username" required maxlength="40" autofocus></label><label class="field">密码<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label><p class="error" role="alert" id="login-error"></p><button class="primary" type="submit">登录</button></form></main>`;
-  app.querySelector('form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('[type=submit]');button.disabled=true;try{const account=await authRequest('/api/auth/login',Object.fromEntries(new FormData(e.target)));await initializeStorage(account);setUser(account);navigate('/today')}catch(error){app.querySelector('#login-error').textContent=error.message}finally{button.disabled=false}};
+  app.querySelector('form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('[type=submit]');button.disabled=true;try{const account=await authRequest('/api/auth/login',Object.fromEntries(new FormData(e.target)));if(account.role !== 'admin') await initializeStorage(account);setUser(account);navigate(account.role === 'admin' ? '/users' : '/today')}catch(error){app.querySelector('#login-error').textContent=error.message}finally{button.disabled=false}};
 }
-try { const account=await authRequest('/api/auth/me'); await initializeStorage(account); setUser(account); await render(); }
+try { const account=await authRequest('/api/auth/me'); if(account.role !== 'admin') await initializeStorage(account); setUser(account); await render(); }
 catch(error) { if(error.status===401)showLogin();else {app.innerHTML='<main class="page empty-state"><h1>暂时无法读取数据</h1><p id="storage-error"></p><button class="primary" id="retry-storage">重试</button></main>';app.querySelector('#storage-error').textContent=error.message;app.querySelector('#retry-storage').onclick=()=>location.reload();} }

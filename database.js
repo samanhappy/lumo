@@ -17,8 +17,14 @@ export async function openDatabase(path) {
   mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec('PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS app_data (key TEXT PRIMARY KEY, value TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1)');
+  db.exec('CREATE TABLE IF NOT EXISTS auth_users (id INTEGER PRIMARY KEY, value TEXT NOT NULL, revision INTEGER NOT NULL)');
   db.exec('CREATE TABLE IF NOT EXISTS auth_sessions (token TEXT PRIMARY KEY, username TEXT NOT NULL, credential TEXT NOT NULL, expires BIGINT NOT NULL)');
   return {
+    getUsers() { const row = db.prepare('SELECT value,revision FROM auth_users WHERE id=1').get(); return row && { value: JSON.parse(row.value), revision: row.revision }; },
+    saveUsers(value, revision) {
+      const result = revision === 0 ? db.prepare('INSERT OR IGNORE INTO auth_users VALUES (1,?,1)').run(JSON.stringify(value)) : db.prepare('UPDATE auth_users SET value=?,revision=revision+1 WHERE id=1 AND revision=?').run(JSON.stringify(value), revision);
+      if (!result.changes) throw conflict();
+    },
     createSession(token, username, credential, expires) {
       db.prepare('DELETE FROM auth_sessions WHERE expires <= ?').run(Date.now());
       if (db.prepare('SELECT COUNT(*) AS count FROM auth_sessions').get().count >= 1000) throw Object.assign(new Error('登录会话过多，请稍后重试。'), { status: 429 });
@@ -54,10 +60,16 @@ async function openPostgres() {
   pool.on('error', () => console.error('PostgreSQL 空闲连接中断，后续请求将重新连接。'));
   try {
     await pool.query('CREATE TABLE IF NOT EXISTS app_data (key TEXT PRIMARY KEY, value JSONB NOT NULL, revision INTEGER NOT NULL DEFAULT 1)');
+    await pool.query('CREATE TABLE IF NOT EXISTS auth_users (id INTEGER PRIMARY KEY, value JSONB NOT NULL, revision INTEGER NOT NULL)');
     await pool.query('CREATE TABLE IF NOT EXISTS auth_sessions (token TEXT PRIMARY KEY, username TEXT NOT NULL, credential TEXT NOT NULL, expires BIGINT NOT NULL)');
   }
   catch (error) { await pool.end(); throw error; }
   return {
+    async getUsers() { return (await pool.query('SELECT value,revision FROM auth_users WHERE id=1')).rows[0]; },
+    async saveUsers(value, revision) {
+      const result = revision === 0 ? await pool.query('INSERT INTO auth_users VALUES (1,$1::jsonb,1) ON CONFLICT (id) DO NOTHING', [JSON.stringify(value)]) : await pool.query('UPDATE auth_users SET value=$1::jsonb,revision=revision+1 WHERE id=1 AND revision=$2', [JSON.stringify(value), revision]);
+      if (!result.rowCount) throw conflict();
+    },
     async createSession(token, username, credential, expires) {
       await pool.query('DELETE FROM auth_sessions WHERE expires <= $1', [Date.now()]);
       const result = await pool.query('INSERT INTO auth_sessions (token,username,credential,expires) SELECT $1,$2,$3,$4 WHERE (SELECT COUNT(*) FROM auth_sessions) < 1000', [token, username, credential, expires]);

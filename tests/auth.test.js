@@ -62,3 +62,44 @@ test('database sessions survive restart, expire, revoke logout and reject change
     await assert.rejects(createAuth(raw, db).user(req), {status:401});
   } finally { await db.close(); await rm(dir, {recursive:true,force:true}); }
 });
+
+test('admin manages persistent accounts, revokes sessions and preserves student boundaries', async () => {
+  const raw = JSON.stringify([{username:'admin',password:'password-admin',role:'admin',name:'Admin'}]);
+  const dir = await mkdtemp(join(tmpdir(), 'lumo-users-'));
+  const path = join(dir, 'users.sqlite'); let db = await openDatabase(path);
+  try {
+    let auth = createAuth(raw, db);
+    const admin = await auth.login({username:'admin',password:'password-admin'}, 'ip');
+    const req = {headers:{cookie:`lumo_session=${admin.token}`}};
+    assert.equal(admin.user.student, null);
+    assert.throws(() => scopedKey(admin.user, 'lumo:daily_task'), {status:403});
+    const alice = {username:'alice',password:'password-alice',role:'student',studentId:'alice',name:'Alice',create:true};
+    await auth.saveUser(req, alice);
+    await assert.rejects(auth.saveUser(req, alice), {status:409});
+    const login = await auth.login({username:'alice',password:'password-alice'}, 'ip');
+    const studentReq = {headers:{cookie:`lumo_session=${login.token}`}};
+    await assert.rejects(auth.listUsers(studentReq), {status:403});
+    await assert.rejects(auth.saveUser(studentReq, {...alice,role:'admin'}), {status:403});
+    await assert.rejects(auth.saveUser(req, {...alice, username:'parent',role:'parent',studentId:'missing'}), {status:400});
+    await assert.rejects(auth.saveUser(req, {username:'admin',name:'Admin',role:'admin',disabled:true}), {status:400});
+    await assert.rejects(auth.saveUser(req, {...alice,create:false,password:'short'}), {status:400});
+    await auth.saveUser(req, {...alice,create:false,password:'new-password'});
+    await assert.rejects(auth.user(studentReq), {status:401});
+    await assert.rejects(auth.login({username:'alice',password:'password-alice'}, 'ip'), {status:401});
+    await db.close(); db = await openDatabase(path); auth = createAuth(raw, db);
+    const afterRestart = await auth.login({username:'alice',password:'new-password'}, 'ip');
+    assert.equal(afterRestart.user.name, 'Alice');
+    const list = await auth.listUsers(req);
+    assert.equal(list.length, 2); assert.equal(list[1].hash, undefined); assert.equal(list[1].password, undefined);
+    assert.deepEqual(await db.snapshot(), {});
+    const parent = {username:'guardian',name:'Guardian',role:'parent',studentId:'alice',password:'password-parent',create:true};
+    await auth.saveUser(req, parent);
+    await assert.rejects(auth.saveUser(req, {...alice,create:false,password:'',disabled:true}), {status:400});
+    await assert.rejects(auth.saveUser(req, {...alice,create:false,studentId:'other',password:''}), {status:400});
+    await auth.saveUser(req, {...parent,create:false,password:'',disabled:true});
+    await auth.saveUser(req, {...alice,create:false,password:'',disabled:true});
+    await assert.rejects(auth.login({username:'alice',password:'new-password'}, 'ip'), {status:401});
+    await assert.rejects(auth.user({headers:{cookie:`lumo_session=${afterRestart.token}`}}), {status:401});
+    assert.throws(() => db.saveUsers({},0), {status:409});
+  } finally { await db.close(); await rm(dir, {recursive:true,force:true}); }
+});

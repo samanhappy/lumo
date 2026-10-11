@@ -21,6 +21,11 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     process.env.DATABASE_URL = url.toString();
     db = await openDatabase();
     await db.health();
+    assert.equal(await db.getUsers(), undefined);
+    await db.saveUsers({test:{name:'Persisted'}}, 0);
+    assert.equal((await db.getUsers()).revision, 1);
+    await assert.rejects(db.saveUsers({}, 0), {status:409});
+    await db.saveUsers({}, 1);
     const auth = createAuth(undefined, db);
     const login = await auth.login({username:'student',password:'student123'}, 'ip');
     const request = {headers:{cookie:`lumo_session=${login.token}`}};

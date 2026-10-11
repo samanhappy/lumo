@@ -119,11 +119,11 @@ TEST_DATABASE_URL=postgresql://user:password@localhost:5432/lumo_test npm test
 
 ### 预配置用户与角色
 
-不支持注册。部署管理员通过 `LUMO_USERS` JSON 配置账号（见 `.env.example`），生产环境缺少配置将拒绝启动。每个账号需要唯一 `username`、至少 8 位 `password`、`name`、`role`（`student` 或 `parent`）及 `studentId`。家长与孩子使用相同的 `studentId`；多个家庭使用不同 ID。学生姓名取对应学生账号的 `name`。修改用户名不会改变学生数据归属。
+不开放自行注册。管理员登录后进入 `/users`，可添加用户、编辑姓名与角色、重置密码和停用账号。添加和编辑通过弹窗完成；创建学生时以用户名生成学生 ID，创建家长时从学生列表选择关联。用户名创建后不可修改；停用不会删除学习数据。不能停用自己或移除自己的管理员权限；停用或修改学生关联前，需先处理相关家长账号。部署管理员通过 `LUMO_USERS` JSON 配置账号（见 `.env.example`），生产环境缺少配置将拒绝启动。每个账号需要唯一 `username`、至少 8 位 `password`、`name`、`role`（`admin`、`student` 或 `parent`）；学生和家长还需 `studentId`。家长与孩子使用相同的 `studentId`；多个家庭使用不同 ID。环境变量提供初始账号；在管理页面保存的账号优先，以密码哈希保存在数据库中，重启后仍生效。已有部署需在 `LUMO_USERS` 中添加一个管理员账号。管理员仅管理账号，不访问学生学习接口。学生姓名取对应学生账号的 `name`。修改用户名不会改变学生数据归属。
 
 学生端管理和完成作业、进行学习练习；家长端查看关联孩子的事项及学习概况、管理作业，不能提交学习记录。数据接口在服务端强制检查登录、角色和学生范围。原来的小雨作业及练习记录自动迁入 `local-student`，保留旧数据；已有浏览器数据仅由关联该 ID 的学生账号导入。
 
-本地 `npm run dev` 无配置时提供 `student / student123` 和 `parent / parent123`，仅用于开发。自定义账号可使用 `LUMO_USERS='[...]' npm run dev`；`npm run dev` 和 `npm start` 默认读取 `.env`（文件不存在也可启动），已有环境变量优先；Docker Compose 也会读取。正式部署必须修改示例密码。密码使用 scrypt 校验，浏览器只持有 HttpOnly、SameSite=Strict 会话 cookie，会话保存在数据库中，部署或重启后仍有效；12 小时后过期，退出立即失效，修改密码或账号权限后旧会话失效；登录失败会限速。HTTPS 部署设置 `COOKIE_SECURE=true`。
+本地 `npm run dev` 无配置时提供 `admin / admin123`、`student / student123` 和 `parent / parent123`，仅用于开发。自定义账号可使用 `LUMO_USERS='[...]' npm run dev`；`npm run dev` 和 `npm start` 默认读取 `.env`（文件不存在也可启动），已有环境变量优先；Docker Compose 也会读取。正式部署必须修改示例密码。密码使用 scrypt 校验，浏览器只持有 HttpOnly、SameSite=Strict 会话 cookie，会话保存在数据库中，部署或重启后仍有效；12 小时后过期，退出立即失效，修改密码或账号权限后旧会话失效；登录失败会限速。HTTPS 部署设置 `COOKIE_SECURE=true`。
 
 会话保存在服务进程内，重启需要重新登录；当前 Compose 单个 app 实例适用。账号配置更新后重启 app 即生效：`docker compose up -d --force-recreate app`。无注册、找回密码或账户管理界面。
 
