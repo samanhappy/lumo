@@ -1,0 +1,29 @@
+src/platform/tasks/photo-import.js
+  s_18893e1fcfdd3c::t_e170765202c063 39
+  s_18893e1fcfdd3c::t_e7f55b97293d39 12,18,21,27-28,81-83
+  s_18893e1fcfdd3c::t_16bf4b4761460d 22
+  s_18893e1fcfdd3c::t_9c22c4b00e9c43 79
+src/styles.css
+  s_18893e1fcfdd3c::t_c8fbd2b68ebc34 1623-1624,1628-1638,1640,1665,1670-1673,1704-1710
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "fa747dc5cde69a5accccbed1bbcd16e68e9ad623",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_18893e1fcfdd3c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129fc-196b-7692-a686-e32b174c38dd",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
