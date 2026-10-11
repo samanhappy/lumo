@@ -368,29 +368,6 @@ svg {
 .row-action svg {
   width:18px
 }
-.task-bottom {
-  display:flex;
-  gap:24px;
-  align-items:center;
-  justify-content:space-between;
-  margin-top:20px;
-  font-size:16px;
-  color:#9096ad
-}
-.mini-track {
-  width:130px;
-  height:5px;
-  background:#f0edf9;
-  border-radius:8px;
-  overflow:hidden;
-  flex-shrink:0
-}
-.mini-track i {
-  display:block;
-  height:100%;
-  background:#a18bf7;
-  border-radius:8px
-}
 .empty-state {
   text-align:center;
   padding:28px 16px 38px
@@ -1461,13 +1438,6 @@ input:focus {
   width:23px;
   height:23px
 }
-.task-bottom {
-  font-size:16px;
-  gap:10px
-}
-.mini-track {
-  width:65px
-}
 .app-card {
   flex-wrap:wrap;
   gap:15px;
@@ -1795,7 +1765,7 @@ input:focus {
 }
 .result-stats.cards-stats { grid-template-columns: 1fr; }
 :root { --muted: #626b80; }
-.muted, .page-heading p, .empty-state p, .task-bottom, .sidebar-bottom small,
+.muted, .page-heading p, .empty-state p, .sidebar-bottom small,
 .back-link, .word-label, .stat p, .stat .muted, .mode-card:not(.featured) small,
 .mode-number, .study-top small, .prompt p, .prompt > span, .tip p,
 .handbook > .muted, .game-heading, .result-stats span, .result-stats small,
@@ -1829,3 +1799,50 @@ input:focus {
 .calendar-today { display: block; width: 100%; min-height: 40px; margin-top: 8px; border: 0; border-radius: 10px; background: #f3f0ff; color: var(--purple); font-size: 14px; }
 .date-pill > svg { display: none; }
 .date-pill .date-picker .date-trigger { border: 0; background: transparent; padding: 4px 0; }
+
+/* Daily planning: one date toolbar and a compact, readable checklist. */
+#main:has(.today-page) { height: 100dvh; min-height: 0; overflow: hidden; }
+.today-page { max-width: 1040px; height: 100%; padding-top: 44px; padding-bottom: 88px; display: flex; flex-direction: column; min-height: 0; }
+.today-page > .page-heading, .today-toolbar { flex-shrink: 0; }
+.today-page .page-heading { margin-bottom: 26px; }
+.today-page .page-heading h1 { font-size: 28px; margin: 0 0 6px; }
+.today-page .page-heading p { font-size: 14px; }
+.today-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.today-toolbar .date-pill { order: 2; border: 1px solid #e5e3ef; border-radius: 12px; background: #fff; min-height: 44px; padding: 0 12px; }
+.today-toolbar .date-trigger { min-height: 42px; font-size: 14px; }
+.today-toolbar .date-strip { margin: 0; gap: 6px; }
+.today-toolbar .date-chip { border-radius: 10px; background: transparent; padding: 10px 14px; font-size: 14px; }
+.today-toolbar .date-chip:hover { background: #f0edff; }
+.today-toolbar .date-chip.selected { background: #6554f5; color: #fff; }
+.today-page .task-panel { display: flex; flex-direction: column; min-height: 0; padding: 24px 24px 8px; border-radius: 18px; box-shadow: 0 8px 32px #30334d05; }
+.today-page .task-list { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: #c9c3e6 transparent; }
+.today-page .task-panel > .section-heading { flex-shrink: 0; padding-bottom: 20px; margin-bottom: 0; border-bottom: 1px solid var(--line); }
+.today-page .section-heading h2 { font-size: 18px; gap: 8px; }
+.today-page .count { font-size: 14px; margin-left: 4px; }
+.today-page .count small { font-size: 14px; }
+.today-page .small { font-size: 14px; border-radius: 10px; padding: 9px 14px; }
+.today-page .secondary { background: #fff; border-color: #e5e6ef; }
+.today-page .task-row { min-height: 64px; gap: 14px; padding: 10px 0; flex-wrap: nowrap; }
+.today-page .checkbox { width: 22px; height: 22px; border-radius: 6px; }
+.task-copy { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.today-page .task-subject { font-size: 12px; background: #f1effb; color: #7263a8; padding: 4px 8px; border-radius: 6px; max-width: 100%; }
+.today-page .task-title { font-size: 15px; line-height: 1.6; }
+.today-page .done .task-subject { background: #f4f5f8; color: var(--muted); }
+.today-page .row-action { opacity: .65; flex-shrink: 0; }
+.today-page .row-action:hover, .today-page .row-action:focus-visible { opacity: 1; color: var(--purple); }
+@media (max-width: 760px) {
+  .today-toolbar { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .today-toolbar .date-pill { order: 0; align-self: flex-start; }
+  .today-toolbar .date-strip { display: grid; grid-template-columns: 28px repeat(3, minmax(0, 1fr)) 28px; width: 100%; gap: 2px; }
+  .today-toolbar .date-strip > .quiet { min-width: 28px; padding: 4px; }
+  .today-toolbar #back-today { grid-column: 1 / -1; font-size: 14px; }
+  .today-toolbar .date-chip { padding: 10px 4px; font-size: 13px; white-space: nowrap; }
+}
+@media (max-width: 620px) {
+  .today-page { padding: 28px 16px 92px; }
+  .today-page .task-panel { padding: 18px 16px 6px; }
+  .today-page .task-panel > .section-heading { gap: 16px; padding-bottom: 16px; }
+  .today-page .task-copy { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .today-page .task-title { min-width: 0; }
+  .today-page .task-heading-actions { gap: 8px; }
+}
