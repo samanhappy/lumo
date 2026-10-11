@@ -1,0 +1,26 @@
+src/styles.css
+  s_c664a62ae909a1::t_913217476ed6ce 1725,1728-1730,1737-1742,1746,1751-1752,1779-1780
+src/platform/chat/page.js
+  s_c664a62ae909a1::t_4ad7c87dec8a9a 5,17-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "1042916ee24acc61a322f775a1317bfa09985017",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_c664a62ae909a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129cc-b80a-7831-8a2f-734b481b4a81",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
