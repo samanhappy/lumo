@@ -1,0 +1,36 @@
+tests/date-picker.test.js
+  s_c509fcf4465904::t_65160d5fb38ed2 1-13
+src/platform/tasks/photo-import.js
+  s_c509fcf4465904::t_65160d5fb38ed2 1,30
+src/platform/tasks/date-picker.js
+  s_c509fcf4465904::t_8ac3009bf420d1 53-56,59
+  s_c509fcf4465904::t_65160d5fb38ed2 1-12,14,16-17,22-23,25-30,32,34-45,49,60-61,64-65,67-69
+  s_c509fcf4465904::t_af9ce7133bfc95 13,15,18-21,24,31,33,46-48,50-52,57-58,62-63,66
+src/styles.css
+  s_c509fcf4465904::t_65160d5fb38ed2 1805-1806,1812-1823
+  s_c509fcf4465904::t_af9ce7133bfc95 1807-1810,1824
+  s_c509fcf4465904::t_8ac3009bf420d1 1811
+src/platform/tasks/page.js
+  s_c509fcf4465904::t_65160d5fb38ed2 4,17,44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "958cfc47a1649db8783a1df9c5d62e9406dd52ed",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_c509fcf4465904": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129c1-9bc4-7c12-9bc0-46426f165846",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
