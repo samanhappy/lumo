@@ -1,0 +1,32 @@
+src/platform/tasks/model.js
+  s_cabbcf8cccdbdd::t_696027ba9688fa 49-61
+src/platform/tasks/page.js
+  s_cabbcf8cccdbdd::t_696027ba9688fa 2,9,15,32-66,68-80,83
+  s_cabbcf8cccdbdd::t_273245c70d1882 67
+tests/core.test.js
+  s_cabbcf8cccdbdd::t_26c2dc2e9b2ffe 3,72-92
+  s_cabbcf8cccdbdd::t_4c477c6a37cd60 93
+src/styles.css
+  s_cabbcf8cccdbdd::t_696027ba9688fa 1849-1852
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bcb5321d6eb0c03d7b4235cc7e872ac5af80713f",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_cabbcf8cccdbdd": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129ef-c783-7023-9c0e-dd4086649c39",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
