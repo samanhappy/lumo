@@ -1,0 +1,37 @@
+README.md
+  s_e0417955150cf8::t_c9591bc8965bc5 126
+tests/postgres.test.js
+  s_e0417955150cf8::t_c9591bc8965bc5 7,24-26,37-40
+server.js
+  s_e0417955150cf8::t_bdd494ef6a208c 10,32-33,71
+database.js
+  s_e0417955150cf8::t_bdd494ef6a208c 20,22-28,55-58,61-67
+tests/auth.test.js
+  s_e0417955150cf8::t_c9591bc8965bc5 41-58,60-64
+  s_e0417955150cf8::t_67f6f35b7a073c 59
+  s_e0417955150cf8::t_bdd494ef6a208c 19-20,36
+auth.js
+  s_e0417955150cf8::t_bdd494ef6a208c 1,5,15,18,32-34,38-46
+  s_e0417955150cf8::t_f4c05d272ee2c6 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "34d36d0bfd759f8f730118b39de6c6fe7a67168a",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_e0417955150cf8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b0d-245b-7b70-9562-32a1fa4ed784",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
