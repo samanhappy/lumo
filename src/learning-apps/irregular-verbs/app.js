@@ -49,6 +49,10 @@ function renderStudy(root,studentId,state) {
   <div class="answer-area">${learn?`<button id="flip" class="flashcard ${s.flipped?'flipped':''}">${s.flipped?`<strong>${w.answers.join(' / ')}</strong><small>${w.base==='read'?'过去式读作 /red/，拼写不变':'点击收起答案'}</small>`:'点击翻开词卡 ↻'}</button>`:s.mode==='test'?`<form class="spell"><label class="sr-only" for="past-answer">输入过去式</label><input id="past-answer" name="answer" autocomplete="off" autocapitalize="none" spellcheck="false" required maxlength="80" placeholder="写下你的答案" value="${escape(answer?.answer||'')}" ${answer?'disabled':''}><button class="primary" ${answer?'disabled':''}>提交答案</button></form>`:`<div class="options">${s.options.map(a=>`<button class="option ${answer?(w.answers.includes(a)?'correct':a===answer.answer?'incorrect':''):''}" data-answer="${a}" ${answer?'disabled':''}>${a}${answer&&w.answers.includes(a)?icon('check'):''}</button>`).join('')}</div>`}</div>
   <div class="feedback-space" aria-live="polite">${answer?`<div class="feedback ${answer.correct?'good':'bad'}"><span class="feedback-icon">${answer.correct?'✦':'↻'}</span><div><h3>${answer.correct?'太棒了！'+(run>=2?` 连对 ${run} 题`:''):'再记一次，下次会更好'}</h3><p>${w.base} 的过去式是 <b>${w.answers.join(' / ')}</b>。${w.base==='read'?'读作 /red/。':''}</p></div><button class="primary" id="next">${s.index===s.deck.length-1?'查看结果':'下一题'} ${icon('arrow')}</button></div>`:learn?`<div class="actions"><button class="secondary" id="prev" ${s.index===0?'disabled':''}>上一张</button><button class="primary" id="next">${s.index===s.deck.length-1?'完成学习':'下一张'} ${icon('arrow')}</button></div>`:''}</div></section></div></section>`;
   async function saveActive(updated){await saveState(studentId,{...loadState(studentId),active:updated});renderStudy(root,studentId,loadState(studentId))}
+  async function nextQuestion(session){
+    if(session.index===session.deck.length-1){const ended={...session,ended_at:new Date().toISOString()};await saveState(studentId,{...loadState(studentId),active:null,sessions:[...loadState(studentId).sessions,ended]});navigate(base+'/result')}
+    else {const next=wordById(session.deck[session.index+1]);await saveActive({...session,index:session.index+1,question_started_at:Date.now(),flipped:false,options:learn||session.mode==='test'?[]:optionsFor(next)})}
+  }
   function check(a){safely(async()=>{
     const latest=loadState(studentId),session=latest.active;
     if(!session||session.id!==s.id||session.results[s.index])return;
@@ -56,16 +60,15 @@ function renderStudy(root,studentId,state) {
     const attempt={id:crypto.randomUUID(),session_id:s.id,student_id:studentId,word_id:w.id,answer:a,correct,duration_ms:Math.max(0,Date.now()-s.question_started_at),created_at:now};
     const active={...s,results:[...s.results,attempt],correct_count:s.correct_count+Number(correct),total_count:s.total_count+1};
     await saveState(studentId,{...latest,active,attempts:[...latest.attempts,attempt],mastery:{...latest.mastery,[w.id]:updateMastery(latest.mastery[w.id],correct,now)}});
-    renderStudy(root,studentId,loadState(studentId));root.querySelector('#next')?.focus();
+    if(correct)await nextQuestion(active);
+    else {renderStudy(root,studentId,loadState(studentId));root.querySelector('#next')?.focus()}
   })}
   root.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>check(b.dataset.answer));
   if(root.querySelector('.spell'))root.querySelector('.spell').onsubmit=e=>{e.preventDefault();const a=new FormData(e.target).get('answer').trim();if(a)check(a)};
+  if(!answer)root.querySelector('#past-answer')?.focus();
   if(learn)root.querySelector('#flip').onclick=()=>safely(()=>saveActive({...s,flipped:!s.flipped}));
   if(root.querySelector('#prev'))root.querySelector('#prev').onclick=()=>safely(()=>saveActive({...s,index:s.index-1,flipped:false}));
-  if(root.querySelector('#next'))root.querySelector('#next').onclick=()=>safely(async()=>{
-    if(s.index===s.deck.length-1){const ended={...s,ended_at:new Date().toISOString()};await saveState(studentId,{...loadState(studentId),active:null,sessions:[...loadState(studentId).sessions,ended]});navigate(base+'/result')}
-    else {const next=wordById(s.deck[s.index+1]);await saveActive({...s,index:s.index+1,question_started_at:Date.now(),flipped:false,options:learn||s.mode==='test'?[]:optionsFor(next)})}
-  });
+  if(root.querySelector('#next'))root.querySelector('#next').onclick=()=>safely(()=>nextQuestion(s));
 }
 function renderResult(root,studentId,state) {
   const s=state.sessions.at(-1);
