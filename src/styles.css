@@ -1828,7 +1828,6 @@ input:focus {
 .today-page > .page-heading, .today-toolbar { flex-shrink: 0; }
 .today-page .page-heading { margin-bottom: 26px; }
 .today-page .page-heading h1 { font-size: 28px; margin: 0 0 6px; }
-.today-page .page-heading p { font-size: 14px; }
 .today-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
 .today-toolbar .date-pill { order: 2; border: 1px solid #e5e3ef; border-radius: 12px; background: #fff; min-height: 44px; padding: 0 12px; }
 .today-toolbar .date-trigger { min-height: 42px; font-size: 14px; }
@@ -1861,8 +1860,22 @@ input:focus {
   .today-toolbar .date-chip { padding: 10px 4px; font-size: 13px; white-space: nowrap; }
 }
 @media (max-width: 620px) {
-  .today-page { padding: 28px 16px 92px; }
-  .today-page .task-panel { padding: 18px 16px 6px; }
+  #main:has(.today-page) { overflow-y: auto; padding-bottom: calc(108px + env(safe-area-inset-bottom)); }
+  .today-page { height: auto; min-height: 100%; padding: 20px 16px 16px; }
+  .today-page .page-heading { margin-bottom: 16px; }
+  .today-page .page-heading h1 { font-size: 25px; margin: 0; }
+  .today-toolbar { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; margin-bottom: 16px; }
+  .today-toolbar .date-pill { grid-column: 2; grid-row: 1; width: 100%; }
+  .today-toolbar .date-strip { display: contents; }
+  .today-toolbar .date-chip { display: none; }
+  .today-toolbar #previous-day { grid-column: 1; grid-row: 1; }
+  .today-toolbar #next-day { grid-column: 3; grid-row: 1; }
+  .today-toolbar .date-strip > .quiet { min-width: 44px; min-height: 44px; }
+  .today-toolbar #back-today { grid-column: 1 / -1; }
+  .sidebar-bottom { align-items: center; }
+  .sidebar-bottom > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar-bottom #logout { flex-shrink: 0; }
+  .today-page .task-panel { flex: 1; padding: 18px 16px 6px; }
   .today-page .task-panel > .section-heading { gap: 16px; padding-bottom: 16px; }
   .today-page .task-copy { flex-direction: column; align-items: flex-start; gap: 4px; }
   .today-page .task-title { min-width: 0; }

@@ -10,7 +10,7 @@ export function renderToday(root) {
   const today = localDate(), tasks = orderedTasks(loadTasks(),student.id,selectedDate);
   const complete = tasks.filter(t=>t.completed).length;
   const visibleTasks = tasks.filter(t => !!t.completed === (selectedStatus === 'completed'));
-  root.innerHTML = `<section class="page today-page"><header class="page-heading"><div><h1>${selectedDate===today ? (parent ? `${escape(student.name)}的今日安排` : `今日安排`) : '当日安排'}</h1><p>把每天的小事，一件件完成。</p></div></header>
+  root.innerHTML = `<section class="page today-page"><header class="page-heading"><div><h1>${selectedDate===today ? (parent ? `${escape(student.name)}的今日安排` : `今日安排`) : '当日安排'}</h1></div></header>
   <div class="today-toolbar"><label class="date-pill">${icon('today')}<input type="date" id="selected-date" aria-label="查看日期" value="${selectedDate}"></label>
   <div class="date-strip"><button class="quiet" id="previous-day" aria-label="前一天">‹</button>${[-1,0,1].map(n=>{const d=shiftDate(selectedDate,n); return `<button data-date="${d}" class="date-chip ${n===0?'selected':''}">${formatDate(d).replace('星期','周')}</button>`}).join('')}<button class="quiet" id="next-day" aria-label="后一天">›</button>${selectedDate!==today?'<button class="quiet" id="back-today">回到今天</button>':''}</div></div>
   <section class="panel task-panel"><div class="section-heading"><h2>${icon('today')} ${selectedDate===today?'今日事项':'当日事项'} <span class="count">${complete}<small> / ${tasks.length}</small></span></h2><div class="task-heading-actions"><button class="secondary small" id="import-photo">${icon('camera')} 拍照导入</button><button class="primary small" id="add-task">${icon('plus')} 添加事项</button></div></div>
