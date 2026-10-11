@@ -1,0 +1,40 @@
+ai.js
+  s_00b0986d84b2ac::t_0fdd546e9db03f 8-9,12,28,31-33,35,37-38,45,49,51,57
+  s_00b0986d84b2ac::t_b2bdee18b25a6b 34
+.env.example
+  s_00b0986d84b2ac::t_00cfd3b9144791 18
+src/ui.js
+  s_00b0986d84b2ac::t_35cddbb2a51165 9-11
+src/platform/chat/page.js
+  s_00b0986d84b2ac::t_c9a2cbd2f9fd25 9,23-27,30,58,74
+  s_00b0986d84b2ac::t_35cddbb2a51165 10-14,16-22,38,40-41,59
+  s_00b0986d84b2ac::t_00cfd3b9144791 1,8,15,28-29,31-37,39,42-44,50,53,57,60,62,70,72
+  s_00b0986d84b2ac::t_81a55c8c0093c6 5
+tests/ai.test.js
+  s_00b0986d84b2ac::t_6c83bebcd8d0c6 85-105
+src/platform/tasks/ocr.js
+  s_00b0986d84b2ac::t_0fdd546e9db03f 30,32,35-39
+  s_00b0986d84b2ac::t_1b2282aa68ef28 42-53
+  s_00b0986d84b2ac::t_cd82fb978e4f52 40-41
+src/styles.css
+  s_00b0986d84b2ac::t_35cddbb2a51165 1738,1740,1750-1775,1787-1789
+README.md
+  s_00b0986d84b2ac::t_00cfd3b9144791 35
+  s_00b0986d84b2ac::t_c9a2cbd2f9fd25 132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f2ab1efb7f029b3e89a3f8086359925b8af7c556",
+  "prompts": {},
+  "sessions": {
+    "s_00b0986d84b2ac": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a129b2-421c-7b90-a064-c5d617372ccd",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
