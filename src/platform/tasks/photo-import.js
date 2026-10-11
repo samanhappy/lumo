@@ -1,3 +1,4 @@
+import { attachDatePickers } from './date-picker.js';
 import { recognizePhoto, validatePhoto } from './ocr.js';
 import { homeworkLines, importHomework, loadTasks, storeTasks, formatDate } from './model.js';
 import { icon, notify } from '../../ui.js';
@@ -26,6 +27,7 @@ export function photoImportDialog(root, { studentId, date, onImported }) {
     <label class="field photo-date">导入日期<input name="date" type="date" required value="${date}"></label>
     <div class="dialog-actions"><button type="button" class="secondary" id="cancel-photo">取消</button><button type="submit" class="primary" id="save-photo" disabled>确认导入</button></div>
   </form>`;
+  attachDatePickers(dialog);
   root.append(dialog);
   dialog.showModal();
   const $ = selector => dialog.querySelector(selector);

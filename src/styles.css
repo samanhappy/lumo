@@ -1802,3 +1802,23 @@ input:focus {
   #main { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
 }
 .sidebar-bottom #logout { white-space: nowrap; padding-inline: 0; }
+
+.date-picker { min-width: 0; font-weight: 400; }
+.date-picker .date-trigger { width: 100%; font-weight: 400; display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 48px; padding: 12px; border: 1px solid #dedfee; border-radius: 11px; background: #fcfcff; color: #40445c; cursor: pointer; list-style: none; }
+.date-picker .date-trigger::-webkit-details-marker { display: none; }
+.date-picker .date-trigger svg { color: var(--purple); width: 20px; }
+.date-picker .date-trigger:focus-visible { outline: 3px solid #e2dcff; border-color: #9b8bf2; }
+.date-calendar { color: #40445c; font-weight: 400; position: fixed; inset: auto; margin: 0; max-height: calc(100dvh - 24px); overflow-y: auto; padding: 12px; border: 1px solid #e6e1f5; border-radius: 16px; background: white; box-shadow: 0 12px 36px #40336b24; }
+.calendar-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.calendar-heading strong { font-size: 16px; }
+.calendar-heading .quiet { min-width: 40px; min-height: 40px; padding: 0; font-size: 24px; }
+.calendar-week, .calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; text-align: center; }
+.calendar-week { color: var(--muted); font-size: 13px; padding: 8px 0; }
+.calendar-days button { min-height: 40px; border: 0; border-radius: 10px; background: transparent; font-size: 14px; }
+.calendar-days button.outside { color: var(--muted); }
+.calendar-days button:hover { background: #f0edff; color: var(--purple); }
+.calendar-days button[aria-current=date] { box-shadow: inset 0 0 0 1px #b9aff5; }
+.calendar-days button[aria-pressed=true] { background: var(--purple); color: white; }
+.calendar-today { display: block; width: 100%; min-height: 40px; margin-top: 8px; border: 0; border-radius: 10px; background: #f3f0ff; color: var(--purple); font-size: 14px; }
+.date-pill > svg { display: none; }
+.date-pill .date-picker .date-trigger { border: 0; background: transparent; padding: 4px 0; }

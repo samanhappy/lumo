@@ -1,6 +1,7 @@
 import { student, user } from '../student.js';
 import { SUBJECTS, localDate, shiftDate, formatDate, loadTasks, storeTasks, saveTask, toggleTask } from './model.js';
 import { escape, icon, notify } from '../../ui.js';
+import { attachDatePickers } from './date-picker.js';
 import { photoImportDialog } from './photo-import.js';
 let selectedDate = localDate();
 export function renderToday(root) {
@@ -13,6 +14,7 @@ export function renderToday(root) {
   <div class="task-list">${tasks.length?tasks.map(t=>`<div class="task-row ${t.completed?'done':''}"><button class="checkbox" data-toggle="${t.id}" aria-label="${t.completed?'取消完成':'完成'}：${escape(t.title)}" aria-pressed="${t.completed}">${t.completed?icon('check'):''}</button><span class="task-title">${escape(t.title)}</span>${t.subject?`<span class="task-subject">${escape(t.subject)}</span>`:''}<button class="quiet row-action" data-edit="${t.id}" aria-label="编辑：${escape(t.title)}">${icon('edit')}</button></div>`).join(''):`<div class="empty-state"><div class="empty-icon">${icon('today')}</div><h3>还没有事项</h3></div>`}</div>
   ${tasks.length?`<div class="task-bottom"><span>${complete===tasks.length?'全部完成':`还有 ${tasks.length-complete} 项未完成`}</span><div class="mini-track"><i style="width:${complete/tasks.length*100}%"></i></div></div>`:''}</section>
   </section>`;
+  attachDatePickers(root);
   const change = d=>{selectedDate=d;renderToday(root)};
   root.querySelector('#selected-date').onchange=e=>{if(e.target.value)change(e.target.value)};
   root.querySelectorAll('[data-date]').forEach(b=>b.onclick=()=>change(b.dataset.date));
@@ -39,6 +41,7 @@ function taskDialog(root, task) {
   dialog.setAttribute('aria-labelledby','task-dialog-title'); let busy=false;
   const subject = task?.subject ? (SUBJECTS.includes(task.subject) ? task.subject : '其他') : '';
   dialog.innerHTML=`<form><div class="section-heading"><h2 id="task-dialog-title">${task?'编辑事项':'添加事项'}</h2><button type="button" class="quiet" id="close-dialog" aria-label="关闭">${icon('close')}</button></div><label class="field">事项内容<input name="title" required autofocus maxlength="120" placeholder="例如：数学练习册 P32–33" value="${escape(task?.title||'')}"></label><fieldset class="subject-field"><legend>学科（可选）</legend><input type="hidden" name="subject" value="${subject}"><div class="subject-options">${SUBJECTS.map(value=>`<button type="button" data-subject="${value}" aria-pressed="${subject===value}">${value}</button>`).join('')}</div></fieldset><label class="field">日期<input name="date" type="date" required value="${task?.date||selectedDate}"></label><p id="form-error" class="error" role="alert"></p><div class="dialog-actions">${task?`<button type="button" class="danger" id="delete-task">${icon('trash')} 删除</button>`:''}<button type="button" class="secondary" id="cancel-dialog">取消</button><button type="submit" class="primary">保存</button></div></form>`;
+  attachDatePickers(dialog);
   root.append(dialog);dialog.showModal();
   const subjectInput = dialog.querySelector('[name=subject]');
   const subjectButtons = [...dialog.querySelectorAll('[data-subject]')];
