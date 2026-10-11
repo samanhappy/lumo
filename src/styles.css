@@ -1944,3 +1944,21 @@ input:focus {
   .user-dialog { padding: 22px; }
   .user-form-grid { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* Account popover stays beside the sidebar and above the mobile navigation. */
+.account-trigger { cursor: pointer; padding: 0; anchor-name: --account-trigger; }
+.account-trigger:hover { background: #ffe9c2; }
+.account-trigger:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; }
+.account-menu {
+  position: fixed; inset: auto auto 24px 92px; margin: 0;
+  width: 240px; padding: 12px; border: 1px solid var(--line);
+  border-radius: 16px; background: white; color: var(--text);
+  box-shadow: 0 8px 32px #25203920;
+}
+.account-menu strong { display: block; padding: 10px 12px 14px; border-bottom: 1px solid var(--line); }
+.sidebar-bottom .account-menu #logout { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px 12px; margin-top: 6px; text-align: left; border-radius: 8px; }
+.account-menu #logout:hover { background: #f0edff; }
+@media (max-width: 620px) {
+  .sidebar-bottom .account-trigger { display: block; width: 30px; height: 30px; border-width: 2px; font-size: 20px; flex-shrink: 0; }
+  .account-menu { inset: auto 12px 116px auto; width: min(240px, calc(100vw - 24px)); }
+}

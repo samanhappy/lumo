@@ -7,12 +7,15 @@ import { student, user, setUser } from './platform/student.js';
 import { learningApps, markAppUsed } from './platform/learning-apps/registry.js';
 import { icon, navigate, notify, escape } from './ui.js';
 const app = document.querySelector('#app');
+function accountMenu() {
+  return `<div class="sidebar-bottom"><button class="avatar account-trigger" popovertarget="account-menu" aria-label="打开用户菜单" title="${user.role === 'admin' ? escape(user.name) : `关联学生：${escape(student.name)}`}">☀</button><span>${escape(user.name)}</span><div id="account-menu" class="account-menu" popover><strong>${escape(user.name)}</strong><button class="quiet" id="logout">退出登录 <span aria-hidden="true">↪</span></button></div></div>`;
+}
 async function render() {
   if (!user) return showLogin();
   if (user.role === 'admin') return renderAdmin();
   const path=location.pathname.replace(/\/$/,'')||'/today';
   const entry=learningApps.find(a=>path===`/apps/${a.code}`||path.startsWith(`/apps/${a.code}/`));
-  app.innerHTML=`<aside class="sidebar"><a class="logo" href="/today" aria-label="Lumo 首页">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a href="/chat" class="nav-item ${path==='/chat'?'active':''}">${icon('assistant')}<span>助手</span></a><a href="/today" class="nav-item ${path==='/today'?'active':''}">${icon('today')}<span>今日</span></a>${user.role==='student'?`<a href="/apps" class="nav-item ${path==='/apps'||entry?'active':''}">${icon('apps')}<span>应用</span></a>`:''}</nav><div class="sidebar-bottom"><div class="avatar" title="关联学生：${escape(student.name)}">☀</div><span>${escape(user.name)}</span><button class="quiet" id="logout">退出</button></div></aside><main id="main" tabindex="-1"></main>`;
+  app.innerHTML=`<aside class="sidebar"><a class="logo" href="/today" aria-label="Lumo 首页">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a href="/chat" class="nav-item ${path==='/chat'?'active':''}">${icon('assistant')}<span>助手</span></a><a href="/today" class="nav-item ${path==='/today'?'active':''}">${icon('today')}<span>今日</span></a>${user.role==='student'?`<a href="/apps" class="nav-item ${path==='/apps'||entry?'active':''}">${icon('apps')}<span>应用</span></a>`:''}</nav>${accountMenu()}</aside><main id="main" tabindex="-1"></main>`;
   const root=app.querySelector('#main');
   app.querySelector('.nav-item.active')?.setAttribute('aria-current','page');
   app.querySelector('#logout').onclick=async()=>{try{await authRequest('/api/auth/logout',{});location.replace('/login')}catch(e){notify(e.message)}};
@@ -33,7 +36,7 @@ window.addEventListener('popstate',render);
 if(location.pathname==='/')history.replaceState({},'','/today');
 async function renderAdmin() {
   if (location.pathname !== '/users') history.replaceState({}, '', '/users');
-  app.innerHTML = `<aside class="sidebar"><a class="logo" href="/users">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a class="nav-item active" href="/users" aria-current="page">${icon('apps')}<span>用户管理</span></a></nav><div class="sidebar-bottom"><span>${escape(user.name)}</span><button class="quiet" id="logout">退出</button></div></aside><main id="main" tabindex="-1"></main>`;
+  app.innerHTML = `<aside class="sidebar"><a class="logo" href="/users">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a class="nav-item active" href="/users" aria-current="page">${icon('apps')}<span>用户管理</span></a></nav>${accountMenu()}</aside><main id="main" tabindex="-1"></main>`;
   app.querySelector('#logout').onclick = async () => { try { await authRequest('/api/auth/logout', {}); location.replace('/login'); } catch(e) { notify(e.message); } };
   await renderUsers(app.querySelector('#main'), authRequest, user);
 }
