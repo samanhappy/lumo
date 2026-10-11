@@ -1,0 +1,50 @@
+database.js
+  s_a7b6a0e8aa60a8::t_1e0310955ab174 20,23-27,63,68-72
+tests/auth.test.js
+  s_a7b6a0e8aa60a8::t_8756b42257c01d 65-102,104-105
+  s_a7b6a0e8aa60a8::t_0794f8ea260e62 103
+server.js
+  s_a7b6a0e8aa60a8::t_282c548fb2071d 34-35,37,42,86
+src/platform/users/page.js
+  s_a7b6a0e8aa60a8::t_282c548fb2071d 2-3,5-7,12-48
+  s_a7b6a0e8aa60a8::t_38a281ded290f0 1,4,8-11
+src/main.js
+  s_a7b6a0e8aa60a8::t_282c548fb2071d 1,12,34-39,46,48
+.env.example
+  s_a7b6a0e8aa60a8::t_8756b42257c01d 8
+README.md
+  s_a7b6a0e8aa60a8::t_e3ae19d2eb586f 122
+  s_a7b6a0e8aa60a8::t_8756b42257c01d 126
+src/styles.css
+  s_a7b6a0e8aa60a8::t_282c548fb2071d 1893
+  s_a7b6a0e8aa60a8::t_bd770816efddd5 1946
+  s_a7b6a0e8aa60a8::t_f22340ac9368ae 1894-1945
+auth.js
+  s_a7b6a0e8aa60a8::t_1e0310955ab174 11,14,17-25,31,37,42,47,51,54-60,63-66,68-75,79-80,85
+  s_a7b6a0e8aa60a8::t_bd770816efddd5 96
+  s_a7b6a0e8aa60a8::t_8756b42257c01d 7,62,76-77
+  s_a7b6a0e8aa60a8::t_fc27087fa4e58e 61,67,78
+tests/postgres.test.js
+  s_a7b6a0e8aa60a8::t_aef0b2b7f48eb3 24-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6161118fa294ccd47b32d78108ab50f77a19fbe2",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a7b6a0e8aa60a8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a12b11-f78a-7022-b30b-a87151f9e093",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
