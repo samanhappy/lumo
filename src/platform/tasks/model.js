@@ -51,7 +51,7 @@ export const storeTasks = tasks => write('lumo:daily_task', tasks);
 
 export function orderedTasks(tasks, studentId, date) {
   return tasks.filter(t => t.student_id === studentId && t.date === date)
-    .sort((a, b) => Number(a.completed) - Number(b.completed));
+    .sort((a, b) => Number(!!a.completed) - Number(!!b.completed));
 }
 export function preferredTaskStatus(tasks) {
   return tasks.length && tasks.every(t => t.completed) ? 'completed' : 'pending';

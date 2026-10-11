@@ -98,3 +98,29 @@ test('task ordering persists within a date and student, with completed tasks las
  assert.deepEqual(ids(toggleTask(moved,'second','a')), ['first','second','done','done2']);
  assert.deepEqual(ids(tasks), ['first','second','done','done2']);
 });
+
+test('move to first persists ordinary ordering without locking tasks in place', async () => {
+ const date = '2026-10-11';
+ const tasks = [
+  {id:'done1', student_id:'a', date, completed:true},
+  {id:'first', student_id:'a', date},
+  {id:'other', student_id:'b', date},
+  {id:'second', student_id:'a', date, pinned:true},
+  {id:'third', student_id:'a', date},
+  {id:'done2', student_id:'a', date, completed:true},
+  {id:'tomorrow', student_id:'a', date:'2026-10-12'},
+ ];
+ const ids = value => orderedTasks(value,'a',date).map(t => t.id);
+ assert.deepEqual(ids(tasks), ['first','second','third','done1','done2']);
+ const moved = reorderTask(tasks,'third','first','a',date);
+ assert.deepEqual(ids(moved), ['third','first','second','done1','done2']);
+ assert.equal(moved[2], tasks[2]);
+ assert.equal(moved[6], tasks[6]);
+ assert.equal(reorderTask(moved,'third','third','a',date), moved);
+ assert.equal(reorderTask(moved,'third','first','b',date), moved);
+ await storeTasks(moved);
+ assert.deepEqual(ids(loadTasks()), ids(moved));
+ assert.deepEqual(ids(reorderTask(loadTasks(),'first','third','a',date)), ['first','third','second','done1','done2']);
+ assert.deepEqual(ids(reorderTask(moved,'done2','done1','a',date)), ['third','first','second','done2','done1']);
+ assert.deepEqual(ids(tasks), ['first','second','third','done1','done2']);
+});
