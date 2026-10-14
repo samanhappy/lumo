@@ -34,13 +34,14 @@ export function importHomework(tasks, text, date, studentId) {
   if (!titles.length) throw new Error('请至少保留一项作业。');
   if (titles.length > 100) throw new Error('一次最多导入 100 项，请分批导入。');
   let next = tasks, added = 0, skipped = 0;
-  for (const [index, title] of titles.entries()) {
+  for (const [index, rawTitle] of titles.entries()) {
+    const subjects = SUBJECTS.filter(subject => subject !== '其他' && rawTitle.includes(subject));
+    const subject = subjects.length === 1 ? subjects[0] : '';
+    const title = subject ? rawTitle.replace(new RegExp(`^${subject}\\s+`), '') || rawTitle : rawTitle;
     if (title.length > 120) throw new Error(`第 ${index + 1} 项超过 120 个字符，请修改或拆成多项。`);
-    if (next.some(task => task.student_id === studentId && task.date === date && task.title === title)) {
+    if (next.some(task => task.student_id === studentId && task.date === date && (task.title === rawTitle || (task.title === title && task.subject === subject)))) {
       skipped++; continue;
     }
-    const subjects = SUBJECTS.filter(subject => subject !== '其他' && title.includes(subject));
-    const subject = subjects.length === 1 ? subjects[0] : '';
     next = saveTask(next, { title, subject, date, type: 'HOMEWORK' }, studentId);
     added++;
   }

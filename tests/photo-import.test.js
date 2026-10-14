@@ -37,9 +37,19 @@ test('photo validation rejects unsupported, empty and oversized files before cal
   await assert.rejects(recognizePhoto({ type: 'image/png', size: 10 }, { signal: controller.signal }), { name: 'AbortError' });
 });
 
-test('photo import saves an unambiguous subject from reviewed text without changing titles', () => {
+test('photo import saves an unambiguous subject from reviewed text and removes only a separate subject prefix', () => {
   const titles = ['数学 大P39', '数学 补P29–30', '语文订正', '背诵英语', '预习 P12', '语文和英语订正'];
   const result = importHomework([], titles.join('\n'), '2026-10-11', 'a');
   assert.deepEqual(result.tasks.map(task => task.subject), ['数学', '数学', '语文', '英语', '', '']);
-  assert.deepEqual(result.tasks.map(task => task.title), titles);
+  assert.deepEqual(result.tasks.map(task => task.title), ['大P39', '补P29–30', '语文订正', '背诵英语', '预习 P12', '语文和英语订正']);
+});
+
+test('math photo assignments keep subjects separate and repeated imports are skipped', () => {
+  const text = '数学 计算能手P51\n数学 一张小练\n数学 大练P44\n数学 订正月考试卷正面（写过程）';
+  const result = importHomework([], text, '2026-10-14', 'a');
+  assert.deepEqual(result.tasks.map(t => t.title), ['计算能手P51', '一张小练', '大练P44', '订正月考试卷正面（写过程）']);
+  assert.ok(result.tasks.every(t => t.subject === '数学'));
+  assert.equal(importHomework(result.tasks, text, '2026-10-14', 'a').skipped, 4);
+  const differentSubjects = importHomework([], '数学 订正\n语文 订正', '2026-10-14', 'a');
+  assert.equal(differentSubjects.added, 2);
 });

@@ -55,7 +55,7 @@ test('separate assignments in the same subject remain separate through photo par
   const { text } = parseHomeworkPhoto(JSON.stringify({ items, warnings: [] }));
   const { tasks, added } = importHomework([], text, '2026-10-11', 'a');
   assert.equal(added, 7);
-  assert.deepEqual(tasks.map(task => task.title), items);
+  assert.deepEqual(tasks.map(task => task.title), ['预K9', '复听', '计P32–33', '补P29–30', '大P39', '书P39 练一练 4–7', 'KKL']);
   assert.deepEqual(tasks.map(task => task.subject), ['语文', '语文', '数学', '数学', '数学', '数学', '英语']);
 });
 test('text-only models and missing vision configuration fail before calling the provider',async()=>{
