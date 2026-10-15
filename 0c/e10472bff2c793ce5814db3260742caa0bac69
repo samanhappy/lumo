@@ -1,0 +1,79 @@
+src/learning-apps/practice/grade6-poetry.js
+  s_25111e53ffe9aa::t_b63d288f7dc887 1-17,19-33,36-42
+  s_25111e53ffe9aa::t_4e8ddd4a3c9eba 18,34-35
+database.js
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 4
+docs/textbook-sources.md
+  s_25111e53ffe9aa::t_28c5338da65f68 1-34
+src/platform/learning-apps/registry.js
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 1-2,5
+tests/practice.test.js
+  s_25111e53ffe9aa::t_b1a108dc107bf6 110-124
+  s_25111e53ffe9aa::t_15f7be5ee435c2 146-148,154-155
+  s_25111e53ffe9aa::t_c5eb96e93636f0 127,131
+  s_25111e53ffe9aa::t_80fdf9d99ee634 1-109
+  s_25111e53ffe9aa::t_9c4d064b8bc9f8 125-126,128-130,132-136
+  s_25111e53ffe9aa::t_0bed4e390de2a9 137-145,149-153,156-171
+src/learning-apps/practice/domain.js
+  s_25111e53ffe9aa::t_6ba34bc1548061 53
+  s_25111e53ffe9aa::t_b1a108dc107bf6 80,85-86
+  s_25111e53ffe9aa::t_dcc3073bbbb71c 1-12,14-22,24-28,34-52,54-79,81-84,87
+  s_25111e53ffe9aa::t_011ab80443aa99 13,23
+  s_25111e53ffe9aa::t_80fdf9d99ee634 29-33
+src/styles.css
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 1965-1991
+src/learning-apps/practice/content.js
+  s_25111e53ffe9aa::t_011ab80443aa99 1-3,51-57
+  s_25111e53ffe9aa::t_dcc3073bbbb71c 4-50
+auth.js
+  s_25111e53ffe9aa::t_80fdf9d99ee634 1
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 91,95,106
+src/main.js
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 24
+src/learning-apps/practice/grade6-english.js
+  s_25111e53ffe9aa::t_396e9ee22595d7 1-17
+src/learning-apps/practice/grade6-words.js
+  s_25111e53ffe9aa::t_396e9ee22595d7 26
+  s_25111e53ffe9aa::t_23859f9efc879a 1-3,5-25,27-34
+  s_25111e53ffe9aa::t_157920d60b2e16 4
+src/learning-apps/practice/repository.js
+  s_25111e53ffe9aa::t_80fdf9d99ee634 3
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 1-2,4-7
+README.md
+  s_25111e53ffe9aa::t_688b58fda92c47 155-159,161-162,165-168,170-171
+  s_25111e53ffe9aa::t_28c5338da65f68 160,163-164,169
+src/learning-apps/practice/keys.js
+  s_25111e53ffe9aa::t_80fdf9d99ee634 1-2
+tests/auth.test.js
+  s_25111e53ffe9aa::t_688b58fda92c47 128-148
+tests/apps.test.js
+  s_25111e53ffe9aa::t_80fdf9d99ee634 8,15,36-37,46
+src/platform/learning-apps/page.js
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 5
+src/learning-apps/practice/app.js
+  s_25111e53ffe9aa::t_b1a108dc107bf6 2,55
+  s_25111e53ffe9aa::t_6ba34bc1548061 44,46-47
+  s_25111e53ffe9aa::t_fd3b30ba2b95d5 1,3-37,40,43,52-54,56-60,62-71,73-74,76-101
+  s_25111e53ffe9aa::t_c5eb96e93636f0 38-39,41-42,45,48-51,61,72,75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0ce10472bff2c793ce5814db3260742caa0bac69",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_25111e53ffe9aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13e12-5fed-7110-8595-5cd1e12bdd01",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
