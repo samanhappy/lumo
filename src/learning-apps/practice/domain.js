@@ -48,13 +48,15 @@ export function createSession(course, unitId, mode, ability, state, today = loca
   if (!unit || !['learn','practice','review'].includes(mode) || !Object.hasOwn(course.abilities,ability)) throw new Error('请选择有效的单元和练习方式。');
   const due = unit.items.filter(item => { const p=state.progress[progressKey(item.id,ability)]; return p && p.due <= today; });
   const fresh = unit.items.filter(item => !state.progress[progressKey(item.id,ability)]);
-  const items = mode === 'learn' ? unit.items : mode === 'review' ? due : [...due,...fresh.slice(0,3)];
+  const practice = [...due,...fresh.slice(0,3)];
+  const items = mode === 'learn' ? unit.items : mode === 'review' ? due : practice.length ? practice : [...unit.items].sort((a,b) => state.progress[progressKey(a.id,ability)].due.localeCompare(state.progress[progressKey(b.id,ability)].due));
   if (!items.length) throw new Error(mode === 'review' ? '这个单元暂时没有到期复习内容。' : '今天的内容已完成，等到期复习或选择其他单元。');
   return {id:crypto.randomUUID(),unitId,mode,ability,deck:(mode === 'learn' ? items : items.slice(0,10)).map(item => ({itemId:item.id,retry:false})),index:0,results:[],feedback:null,hinted:false,startedAt:new Date().toISOString()};
 }
 export function updateProgress(previous, correct, hinted, today) {
   const old = previous || {stage:0,attempts:0};
   const independent = correct && !hinted;
+  if (independent && old.due > today) return {...old,attempts:old.attempts+1,lastCorrect:true,lastHinted:false};
   const stage = independent ? Math.min(intervals.length, old.stage + Number(old.lastIndependentDate !== today)) : 0;
   return {...old,stage,attempts:old.attempts+1,lastCorrect:correct,lastHinted:hinted,lastIndependentDate:independent ? today : old.lastIndependentDate,
     due:independent ? shiftDate(today,intervals[Math.max(0,stage-1)]) : today};

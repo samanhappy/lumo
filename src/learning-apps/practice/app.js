@@ -22,9 +22,10 @@ export function createPracticeApp(course) {
     },
     async start(studentId,unitId,mode='practice',ability='recall') {
       const state=load(studentId);
-      if (state.active) throw new Error('请继续或结束当前练习，再开始新的学习。');
+      if (state.active?.unitId===unitId && state.active.mode===mode && state.active.ability===ability) return state.active;
       const session=createSession(course,unitId,mode,ability,state);
-      await save(studentId,{...state,active:session});
+      const sessions=state.active ? [...state.sessions,{...state.active,endedAt:new Date().toISOString(),abandoned:true}] : state.sessions;
+      await save(studentId,{...state,sessions,active:session});
       return session;
     },
     render(root,context,path) {
@@ -40,12 +41,12 @@ export function createPracticeApp(course) {
     const {studentId}=context;
     const units=course.units.filter(unit => (!grade || unit.grade===grade) && (!term || unit.term===term));
     root.innerHTML=`<section class="page practice-home">${heading()}<p class="content-note">${escape(course.notice || '内置内容为学习示例。')}掌握需跨天独立答对；浏览词卡不增加掌握度。</p>
-      ${state.active?`<div class="resume-bar"><span>上次学习尚未完成</span><a class="primary" href="${base}/study">继续学习</a><button class="secondary" id="end-session">结束本轮，保留已答记录</button></div>`:''}
+      ${state.active?`<div class="resume-bar"><span>上次学习尚未完成；可继续，也可切换单元或方式，已答记录会保留。</span><a class="primary" href="${base}/study">继续学习</a><button class="secondary" id="end-session">结束本轮，保留已答记录</button></div>`:''}
       <h2>全部内容学习概况</h2><div class="practice-stats">${Object.entries(course.abilities).map(([ability,label])=>{const stats=statistics(course,state,ability);return `<section class="panel"><h3>${escape(label)}</h3><p>待复习 <b>${stats.due}</b> 项 · 已练习 ${stats.practiced} / ${stats.total} 项</p><p>已掌握 ${stats.mastered} 项${stats.nextDue?` · 下次复习 ${escape(stats.nextDue)}`:''}</p></section>`}).join('')}</div>
       <div class="practice-filters"><label class="field">内容年级<select id="content-grade"><option value="">全部年级</option>${GRADES.map(g=>`<option ${grade===g?'selected':''}>${g}</option>`).join('')}</select></label><label class="field">内容学期<select id="content-term"><option value="">上下册</option>${['上册','下册'].map(t=>`<option ${term===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="field">练习方式<select id="ability">${Object.entries(course.abilities).map(([key,label])=>`<option value="${key}" ${key==='recall'?'selected':''}>${escape(label)}</option>`).join('')}</select></label></div>
       <div class="unit-grid">${units.map(unit=>{
         const weak=unit.items.filter(item=>Object.keys(course.abilities).some(ability=>{const p=state.progress[progressKey(item.id,ability)];return p && (!p.lastCorrect || p.lastHinted);}));
-        return `<article class="panel unit-card"><p class="eyebrow">${escape(unit.grade)} · ${escape(unit.edition)} · ${escape(unit.term)}</p><h2>${escape(unit.title)}</h2>${unit.author?`<p>${escape(unit.dynasty)} · ${escape(unit.author)}</p>`:''}<p>${unit.items.length} ${course.id==='classical-poetry'?'句':'个词条'}</p>${Object.entries(course.abilities).map(([ability,label])=>{const stats=statistics(course,state,ability,undefined,unit.id);return `<p class="content-note">${escape(label)}：待复习 ${stats.due} · 已掌握 ${stats.mastered} / ${stats.total}</p>`}).join('')}${weak.length?`<p class="content-note">最近易错或使用提示：${weak.map(item=>escape(item.word)).join('、')}</p>`:''}${sourceNote(unit)}<div class="practice-actions">${[['learn','词卡学习'],['practice','开始练习'],['review','到期复习']].map(([mode,label])=>`<button class="${mode==='practice'?'primary':'secondary'}" data-unit="${escape(unit.id)}" data-mode="${mode}" ${state.active?'disabled':''}>${label}</button>`).join('')}</div></article>`;
+        return `<article class="panel unit-card"><p class="eyebrow">${escape(unit.grade)} · ${escape(unit.edition)} · ${escape(unit.term)}</p><h2>${escape(unit.title)}</h2>${unit.author?`<p>${escape(unit.dynasty)} · ${escape(unit.author)}</p>`:''}<p>${unit.items.length} ${course.id==='classical-poetry'?'句':'个词条'}</p>${Object.entries(course.abilities).map(([ability,label])=>{const stats=statistics(course,state,ability,undefined,unit.id);return `<p class="content-note">${escape(label)}：已练习 ${stats.practiced} / ${stats.total} · 待复习 ${stats.due} · 已掌握 ${stats.mastered}${stats.nextDue?` · 下次复习 ${escape(stats.nextDue)}`:''}</p>`}).join('')}${weak.length?`<p class="content-note">最近易错或使用提示：${weak.map(item=>escape(item.word)).join('、')}</p>`:''}${sourceNote(unit)}<div class="practice-actions">${[['learn','词卡学习'],['practice','开始练习'],['review','到期复习']].map(([mode,label])=>`<button class="${mode==='practice'?'primary':'secondary'}" data-unit="${escape(unit.id)}" data-mode="${mode}">${label}</button>`).join('')}</div></article>`;
       }).join('') || '<div class="panel"><p>当前年级暂无内置内容或所选学期暂无内容，可以查看全部年级和学期。</p><button class="secondary" id="all-grades">查看全部年级</button></div>'}</div></section>`;
     root.querySelector('#content-grade').onchange=e=>renderHome(root,context,load(studentId),e.target.value,term);
     root.querySelector('#content-term').onchange=e=>renderHome(root,context,load(studentId),grade,e.target.value);

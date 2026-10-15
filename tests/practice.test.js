@@ -98,7 +98,7 @@ test('all apps persist active sessions, recover on reload and isolate students a
     const session=await app.start('alice',course.units[0].id);
     assert.equal(loadState(course.id,'alice').active.id,session.id);
     assert.equal(loadState(course.id,'bob').active,null);
-    await assert.rejects(app.start('alice',course.units[0].id),/当前练习/);
+    assert.equal((await app.start('alice',course.units[0].id)).id,session.id);
     let state=loadState(course.id,'alice');
     const item=course.units[0].items.find(item=>item.id===session.deck[0].itemId);
     state=submitAnswer(course,state,item.word,today);
@@ -168,4 +168,54 @@ test('textbook home filters by semester and shows source links and edition bound
   controls['#content-term'].onchange({target:{value:'下册'}});
   assert.doesNotMatch(root.innerHTML,/第1课 草原/);assert.match(root.innerHTML,/第1课 北京的春节/);
   assert.match(root.innerHTML,/查看教材来源/);assert.match(root.innerHTML,/未核定为2026修订版/);
+});
+
+test('completed daily work remains available for practice without advancing the review schedule',async()=>{
+  const state=emptyState();
+  for(const item of unit.items) state.progress[progressKey(item.id,'recall')]=updateProgress(undefined,true,false,today);
+  const session=createSession(english,unit.id,'practice','recall',state,today);
+  assert.equal(session.deck.length,unit.items.length);
+  const before=state.progress[progressKey(word.id,'recall')];
+  const after=updateProgress(before,true,false,today);
+  assert.equal(after.stage,before.stage);
+  assert.equal(after.due,before.due);
+  assert.equal(after.attempts,before.attempts+1);
+  const advanced=updateProgress({...before,stage:3,due:'2026-10-22'},true,false,'2026-10-16');
+  assert.equal(advanced.stage,3);assert.equal(advanced.due,'2026-10-22');
+  assert.equal(updateProgress(before,false,false,today).due,today);
+  assert.equal(updateProgress(before,true,true,today).stage,0);
+  assert.throws(()=>createSession(english,unit.id,'review','recall',state,today),/没有到期/);
+  await saveState(english.id,'finished-day',state);
+  const controls={'#content-grade':{},'#content-term':{}};
+  const root={innerHTML:'',querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};
+  practiceApps[0].render(root,{studentId:'finished-day',grade:unit.grade},'/apps/english-vocabulary');
+  assert.match(root.innerHTML,new RegExp(`已练习 ${unit.items.length} / ${unit.items.length}`));
+  assert.match(root.innerHTML,/下次复习 2026-10-16/);
+});
+
+
+test('unfinished sessions do not disable units; switching preserves answers and failed switches preserve the active session',async()=>{
+  const app=practiceApps[0],student='switch-session';
+  await app.start(student,unit.id);
+  await saveState(english.id,student,submitAnswer(english,loadState(english.id,student),word.word,today));
+  const previous=loadState(english.id,student);
+  const controls={'#content-grade':{},'#content-term':{},'#end-session':{}};
+  const root={innerHTML:'',querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};
+  app.render(root,{studentId:student,grade:unit.grade},'/apps/english-vocabulary');
+  assert.doesNotMatch(root.innerHTML,/<button[^>]*data-mode[^>]*disabled/);
+  assert.equal((await app.start(student,unit.id)).id,previous.active.id);
+  await assert.rejects(app.start(student,unit.id,'review'),/没有到期/);
+  assert.deepEqual(loadState(english.id,student),previous);
+  const original=localStorage.setItem;
+  localStorage.setItem=()=>{throw new Error('disk full');};
+  try {await assert.rejects(app.start(student,unit.id,'learn'),/无法保存/);}
+  finally {localStorage.setItem=original;}
+  assert.deepEqual(loadState(english.id,student),previous);
+  await app.start(student,unit.id,'learn');
+  const switched=loadState(english.id,student);
+  assert.equal(switched.active.mode,'learn');
+  assert.deepEqual(switched.sessions.at(-1).results,previous.active.results);
+  assert.deepEqual(switched.progress,previous.progress);
+  await app.start(student,english.units[1].id);
+  assert.equal(loadState(english.id,student).active.unitId,english.units[1].id);
 });
