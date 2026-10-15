@@ -1,3 +1,4 @@
+import { practiceIds, practiceKey } from './src/learning-apps/practice/keys.js';
 import { validGrade } from './src/platform/grades.js';
 import { createHash, randomBytes, scryptSync, scrypt as derive, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
@@ -87,10 +88,11 @@ export function createAuth(raw = process.env.LUMO_USERS, store) {
     async logout(req) { const token = this.token(req); if (store && token) await store.deleteSession(digest(token)); else sessions.delete(token); }
   };
 }
+const learningKeys = id => ['lumo:daily_task','lumo:student_app',`lumo:iv:${id}`,...practiceIds.map(appId => practiceKey(appId,id))];
 export function scopedKey(user, key, value, writing = false) {
   if (!user.student || user.role === 'admin') throw fail('管理员不能访问学生学习数据。', 403);
   const id = user.student.id;
-  if (!['lumo:daily_task', 'lumo:student_app', `lumo:iv:${id}`].includes(key)) throw fail('无权访问该学生数据。', 403);
+  if (!learningKeys(id).includes(key)) throw fail('无权访问该学生数据。', 403);
   if (writing) {
     if (user.role === 'parent' && key !== 'lumo:daily_task') throw fail('家长端不能提交学习记录。', 403);
     if (key === 'lumo:daily_task' && (!Array.isArray(value) || value.some(t => !t || t.student_id !== id))) throw fail('事项必须属于当前学生。', 403);
@@ -101,7 +103,7 @@ export function scopedKey(user, key, value, writing = false) {
 export async function studentSnapshot(database, user) {
   scopedKey(user, 'lumo:daily_task');
   const all = await database.snapshot(), result = {};
-  for (const key of ['lumo:daily_task','lumo:student_app',`lumo:iv:${user.student.id}`]) {
+  for (const key of learningKeys(user.student.id)) {
     const scoped = scopedKey(user, key);
     if (all[scoped]) result[key] = all[scoped];
   }

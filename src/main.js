@@ -21,7 +21,7 @@ async function render() {
   app.querySelector('#logout').onclick=async()=>{try{await authRequest('/api/auth/logout',{});location.replace('/login')}catch(e){notify(e.message)}};
   if ((entry || path==='/apps') && user.role==='parent') { navigate('/today'); return; }
   if(entry && !isAppAvailable(entry,student.grade)) root.innerHTML='<section class="page empty-state"><h1>此应用暂不适用于当前年级</h1><a class="primary" href="/apps">返回应用</a></section>';
-  else if(entry){try{await markAppUsed(entry,student.id)}catch(e){notify(e.message)}if (!root.isConnected) return; entry.app.render(root,{studentId:student.id,studentName:student.name},path)}
+  else if(entry){try{await markAppUsed(entry,student.id)}catch(e){notify(e.message)}if (!root.isConnected) return; entry.app.render(root,{studentId:student.id,studentName:student.name,grade:student.grade},path)}
   else if(path==='/apps')renderApps(root,student.grade);
   else if(path==='/chat')renderChat(root);
   else if(path==='/today'||path==='/login')renderToday(root);

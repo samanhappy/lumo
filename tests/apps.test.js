@@ -5,14 +5,14 @@ import assert from 'node:assert/strict';
 import { renderApps } from '../src/platform/learning-apps/page.js';
 import { learningApps, isAppAvailable } from '../src/platform/learning-apps/registry.js';
 
-test('apps lists only the enabled app without reading or showing practice state', () => {
+test('apps lists enabled apps without reading or showing practice state', () => {
   const app = learningApps[0].app;
   const original = app.getSummary;
   app.getSummary = () => { throw new Error('Practice state must stay inside the app'); };
   try {
     const root = { innerHTML: '' };
     renderApps(root);
-    assert.equal((root.innerHTML.match(/class="app-card"/g) || []).length, 1);
+    assert.equal((root.innerHTML.match(/class="app-card"/g) || []).length, learningApps.length);
     assert.match(root.innerHTML, /<h1>应用<\/h1>/);
     assert.match(root.innerHTML, /不规则过去式/);
     assert.match(root.innerHTML, /href="\/apps\/irregular-verbs"/);
@@ -33,8 +33,8 @@ test('app grade rules cover unrestricted, matching, unknown and disabled cases',
 });
 
 test('app listing applies grade configuration and explains empty results', () => {
-  const entry = learningApps[0], original = entry.grades;
-  entry.grades = ['初一','初二'];
+  const entry = learningApps[0], originals = learningApps.map(app => app.grades);
+  for (const app of learningApps) app.grades = ['初一','初二'];
   try {
     const root = {innerHTML:''};
     renderApps(root,'初一');
@@ -43,7 +43,7 @@ test('app listing applies grade configuration and explains empty results', () =>
     renderApps(root,'六年级');
     assert.doesNotMatch(root.innerHTML,/class="app-card"/);
     assert.match(root.innerHTML,/暂无适合当前年级的应用/);
-  } finally { entry.grades = original; }
+  } finally { learningApps.forEach((app,index) => { app.grades = originals[index]; }); }
 });
 
 test('direct app URLs reject mismatched grades before recording usage or rendering the app', async () => {

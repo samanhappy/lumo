@@ -125,3 +125,24 @@ test('configured grades are validated and shared with the linked parent', async 
   accounts[0].grade = '不存在';
   assert.throws(() => createAuth(JSON.stringify(accounts)), /年级无效/);
 });
+
+test('practice storage survives reopening, isolates families and blocks parent and unknown app writes', async () => {
+  const dir=await mkdtemp(join(tmpdir(),'lumo-practice-auth-')), path=join(dir,'practice.sqlite');
+  let db=await openDatabase(path);
+  const alice={role:'student',student:{id:'alice'}}, bob={role:'student',student:{id:'bob'}}, parent={role:'parent',student:{id:'alice'}};
+  try {
+    for (const appId of ['english-vocabulary','chinese-words','classical-poetry']) {
+      const key=`lumo:practice:${appId}:alice`, state={progress:{example:{stage:1}},active:{id:appId}};
+      await db.save(scopedKey(alice,key,state,true),state,0);
+      assert.throws(()=>scopedKey(bob,key,{},true),{status:403});
+      assert.throws(()=>scopedKey(parent,key,{},true),{status:403});
+    }
+    assert.throws(()=>scopedKey(alice,'lumo:practice:unknown:alice',{},true),{status:403});
+    assert.throws(()=>db.save('student:alice:lumo:practice:unknown:alice',{},0),{status:400});
+    await db.close();db=await openDatabase(path);
+    const snapshot=await studentSnapshot(db,parent);
+    assert.equal(Object.keys(snapshot).length,3);
+    assert.equal(snapshot['lumo:practice:english-vocabulary:alice'].value.progress.example.stage,1);
+    assert.deepEqual(await studentSnapshot(db,bob),{});
+  } finally { await db.close();await rm(dir,{recursive:true,force:true}); }
+});

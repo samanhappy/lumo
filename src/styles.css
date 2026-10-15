@@ -1962,3 +1962,30 @@ input:focus {
   .sidebar-bottom .account-trigger { display: block; width: 30px; height: 30px; font-size: 16px; flex-shrink: 0; }
   .account-menu { inset: auto 12px 116px auto; width: min(240px, calc(100vw - 24px)); }
 }
+
+/* Shared vocabulary and poetry practice. */
+.practice-stats, .unit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin: 20px 0; }
+.practice-stats .panel, .unit-card, .practice-question, .practice-result .panel { padding: 24px; }
+.content-note { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.practice-filters, .practice-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.practice-filters .field { min-width: 180px; }
+.practice-filters select { min-height: 44px; border: 1px solid var(--line); border-radius: 10px; background: white; padding: 8px 12px; font: inherit; color: inherit; }
+.practice-home .resume-bar { flex-wrap: wrap; gap: 12px; }
+.unit-card h2 { margin-top: 8px; }
+.practice-actions { margin-top: 20px; }
+.practice-study { max-width: 900px; }
+.practice-question { text-align: center; }
+.practice-question h1 { font-size: clamp(24px, 4vw, 38px); line-height: 1.6; overflow-wrap: anywhere; }
+.question-prompt { white-space: pre-line; }
+.practice-question .options { margin: 24px auto; }
+.practice-question .spell { margin: 24px auto; max-width: 580px; }
+.practice-question #hint { margin: 16px 0; min-height: 44px; }
+.practice-question #next { margin-top: 20px; }
+.practice-question .feedback { margin-top: 20px; text-align: left; }
+.practice-progress { width: 100%; height: 10px; accent-color: var(--purple); margin-bottom: 24px; }
+.practice-question details { margin: 20px 0; }
+.practice-question summary { cursor: pointer; min-height: 44px; }
+@media (max-width: 700px) {
+  .practice-stats, .unit-grid { grid-template-columns: 1fr; }
+  .practice-filters .field { flex: 1; min-width: 140px; }
+}

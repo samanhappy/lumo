@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-const validKey = key => typeof key === 'string' && (/^student:[a-zA-Z0-9_-]{1,80}:lumo:(daily_task|student_app|iv:[a-zA-Z0-9_-]{1,80})$/.test(key) || ['lumo:daily_task', 'lumo:student_app'].includes(key) || /^lumo:iv:[a-zA-Z0-9_-]{1,80}$/.test(key));
+const validKey = key => typeof key === 'string' && (/^student:[a-zA-Z0-9_-]{1,80}:lumo:(daily_task|student_app|iv:[a-zA-Z0-9_-]{1,80}|practice:(english-vocabulary|chinese-words|classical-poetry):[a-zA-Z0-9_-]{1,80})$/.test(key) || ['lumo:daily_task', 'lumo:student_app'].includes(key) || /^lumo:iv:[a-zA-Z0-9_-]{1,80}$/.test(key));
 function validateWrite(key, value, revision) {
   if (!validKey(key) || value === null || typeof value !== 'object' || !Number.isSafeInteger(revision) || revision < 0) throw Object.assign(new Error('无效的存储数据。'), { status: 400 });
 }
