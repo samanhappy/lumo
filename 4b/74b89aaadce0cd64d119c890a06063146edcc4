@@ -1,0 +1,33 @@
+src/learning-apps/practice/app.js
+  s_25111e53ffe9aa::t_4396ad99bac48b 25,27-28,44,49
+src/learning-apps/practice/domain.js
+  s_25111e53ffe9aa::t_2524a808bd03eb 51-52,59
+tests/practice.test.js
+  s_25111e53ffe9aa::t_4396ad99bac48b 101,194-220
+  s_25111e53ffe9aa::t_a34f2cde8f595a 172-193,221
+server.js
+  s_25111e53ffe9aa::t_7dab0dabb23a2d 86
+tests/server.test.js
+  s_25111e53ffe9aa::t_7dab0dabb23a2d 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4b74b89aaadce0cd64d119c890a06063146edcc4",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_25111e53ffe9aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13e12-5fed-7110-8595-5cd1e12bdd01",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
