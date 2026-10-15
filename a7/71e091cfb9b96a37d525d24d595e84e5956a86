@@ -1,0 +1,45 @@
+src/platform/grades.js
+  s_25111e53ffe9aa::t_33d0bd1098f936 1-2
+tests/apps.test.js
+  s_25111e53ffe9aa::t_2593000601d00b 2-3,47-66
+  s_25111e53ffe9aa::t_ea70b5d9911078 6,24-46
+src/platform/learning-apps/registry.js
+  s_25111e53ffe9aa::t_33d0bd1098f936 3,12-14
+  s_25111e53ffe9aa::t_79d6220c8ddb98 15
+src/main.js
+  s_25111e53ffe9aa::t_33d0bd1098f936 7,23-25
+src/platform/learning-apps/page.js
+  s_25111e53ffe9aa::t_33d0bd1098f936 1,4-5
+README.md
+  s_25111e53ffe9aa::t_33d0bd1098f936 149-154
+src/platform/users/page.js
+  s_25111e53ffe9aa::t_33d0bd1098f936 1,10,29
+tests/auth.test.js
+  s_25111e53ffe9aa::t_2593000601d00b 118
+  s_25111e53ffe9aa::t_ea70b5d9911078 76,92,98-107,117,119-126
+  s_25111e53ffe9aa::t_db1eb6a32614f1 127
+auth.js
+  s_25111e53ffe9aa::t_33d0bd1098f936 1,13,30,71,73
+  s_25111e53ffe9aa::t_2593000601d00b 19-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "a771e091cfb9b96a37d525d24d595e84e5956a86",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_25111e53ffe9aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13e12-5fed-7110-8595-5cd1e12bdd01",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
