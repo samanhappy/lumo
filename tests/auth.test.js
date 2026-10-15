@@ -73,7 +73,7 @@ test('admin manages persistent accounts, revokes sessions and preserves student 
     const req = {headers:{cookie:`lumo_session=${admin.token}`}};
     assert.equal(admin.user.student, null);
     assert.throws(() => scopedKey(admin.user, 'lumo:daily_task'), {status:403});
-    const alice = {username:'alice',password:'password-alice',role:'student',studentId:'alice',name:'Alice',create:true};
+    const alice = {username:'alice',password:'password-alice',role:'student',studentId:'alice',name:'Alice',grade:'初一',create:true};
     await auth.saveUser(req, alice);
     await assert.rejects(auth.saveUser(req, alice), {status:409});
     const login = await auth.login({username:'alice',password:'password-alice'}, 'ip');
@@ -89,11 +89,22 @@ test('admin manages persistent accounts, revokes sessions and preserves student 
     await db.close(); db = await openDatabase(path); auth = createAuth(raw, db);
     const afterRestart = await auth.login({username:'alice',password:'new-password'}, 'ip');
     assert.equal(afterRestart.user.name, 'Alice');
+    assert.equal(afterRestart.user.student.grade, '初一');
     const list = await auth.listUsers(req);
     assert.equal(list.length, 2); assert.equal(list[1].hash, undefined); assert.equal(list[1].password, undefined);
     assert.deepEqual(await db.snapshot(), {});
     const parent = {username:'guardian',name:'Guardian',role:'parent',studentId:'alice',password:'password-parent',create:true};
     await auth.saveUser(req, parent);
+    const guardian = await auth.login({username:'guardian',password:'password-parent'}, 'ip');
+    assert.equal(guardian.user.student.grade, '初一');
+    assert.equal((await auth.listUsers(req)).find(u => u.username === 'alice').grade, '初一');
+    await assert.rejects(auth.saveUser(req, {...alice,create:false,grade:'大学'}), {status:400});
+    await assert.rejects(auth.saveUser(req, {...alice,create:false,grade:7}), {status:400});
+    const {grade, ...withoutGrade} = alice;
+    await auth.saveUser(req, {...withoutGrade,create:false,password:''});
+    assert.equal((await auth.user({headers:{cookie:`lumo_session=${guardian.token}`}})).student.grade, '初一');
+    await auth.saveUser(req, {...alice,create:false,password:'',grade:''});
+    assert.equal((await auth.user({headers:{cookie:`lumo_session=${guardian.token}`}})).student.grade, '');
     await assert.rejects(auth.saveUser(req, {...alice,create:false,password:'',disabled:true}), {status:400});
     await assert.rejects(auth.saveUser(req, {...alice,create:false,studentId:'other',password:''}), {status:400});
     await auth.saveUser(req, {...parent,create:false,password:'',disabled:true});
@@ -102,4 +113,15 @@ test('admin manages persistent accounts, revokes sessions and preserves student 
     await assert.rejects(auth.user({headers:{cookie:`lumo_session=${afterRestart.token}`}}), {status:401});
     assert.throws(() => db.saveUsers({},0), {status:409});
   } finally { await db.close(); await rm(dir, {recursive:true,force:true}); }
+});
+
+test('configured grades are validated and shared with the linked parent', async () => {
+  const accounts = [
+    {username:'alice',password:'password-a',role:'student',studentId:'alice',name:'Alice',grade:'六年级'},
+    {username:'parent',password:'password-p',role:'parent',studentId:'alice',name:'Parent'}
+  ];
+  const auth = createAuth(JSON.stringify(accounts));
+  assert.equal((await auth.login({username:'parent',password:'password-p'},'ip')).user.student.grade, '六年级');
+  accounts[0].grade = '不存在';
+  assert.throws(() => createAuth(JSON.stringify(accounts)), /年级无效/);
 });

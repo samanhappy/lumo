@@ -1,3 +1,4 @@
+import { GRADES } from '../grades.js';
 import { escape, notify, icon } from '../../ui.js';
 const roles = { student:'学生', parent:'家长', admin:'管理员' };
 export async function renderUsers(root, request, actor) {
@@ -6,7 +7,7 @@ export async function renderUsers(root, request, actor) {
     const users = await request('/api/users');
     if (!root.isConnected) return;
     const studentName = id => users.find(u => u.role === 'student' && u.studentId === id)?.name || id;
-    root.innerHTML = `<section class="page users-page"><header class="users-heading"><div><h1>用户管理</h1><p>共 ${users.length} 个账号 · 管理家庭成员与登录权限</p></div><button class="primary" id="add-user">${icon('plus')} 添加用户</button></header><div class="panel users-list"><div class="user-row users-columns" aria-hidden="true"><span>用户</span><span>角色</span><span>关联学生</span><span>状态</span><span></span></div>${users.map(u => `<div class="user-row"><div class="user-identity"><span class="user-avatar" aria-hidden="true">${escape(u.name.slice(0,1))}</span><div><strong>${escape(u.name)}${u.username === actor.username ? '<small class="user-self">你</small>' : ''}</strong><p>${escape(u.username)}</p></div></div><span class="user-role">${roles[u.role]}</span><span class="user-student">${u.role === 'parent' ? escape(studentName(u.studentId)) : '—'}</span><span class="user-status ${u.disabled ? 'disabled' : ''}">${u.disabled ? '已停用' : '正常'}</span><button class="quiet user-edit" data-user="${escape(u.username)}" aria-label="编辑${escape(u.name)}">${icon('edit')}<span>编辑</span></button></div>`).join('')}</div><p class="users-note">先添加学生，再为家长选择关联学生。停用账号会保留学习记录。</p></section>`;
+    root.innerHTML = `<section class="page users-page"><header class="users-heading"><div><h1>用户管理</h1><p>共 ${users.length} 个账号 · 管理家庭成员与登录权限</p></div><button class="primary" id="add-user">${icon('plus')} 添加用户</button></header><div class="panel users-list"><div class="user-row users-columns" aria-hidden="true"><span>用户</span><span>角色</span><span>关联学生</span><span>状态</span><span></span></div>${users.map(u => `<div class="user-row"><div class="user-identity"><span class="user-avatar" aria-hidden="true">${escape(u.name.slice(0,1))}</span><div><strong>${escape(u.name)}${u.username === actor.username ? '<small class="user-self">你</small>' : ''}</strong><p>${escape(u.username)}${u.role === 'student' ? ` · ${escape(u.grade || '未设置年级')}` : ''}</p></div></div><span class="user-role">${roles[u.role]}</span><span class="user-student">${u.role === 'parent' ? escape(studentName(u.studentId)) : '—'}</span><span class="user-status ${u.disabled ? 'disabled' : ''}">${u.disabled ? '已停用' : '正常'}</span><button class="quiet user-edit" data-user="${escape(u.username)}" aria-label="编辑${escape(u.name)}">${icon('edit')}<span>编辑</span></button></div>`).join('')}</div><p class="users-note">先添加学生，再为家长选择关联学生。停用账号会保留学习记录。</p></section>`;
     root.querySelector('#add-user').onclick = () => userDialog(root, request, actor, users);
     root.querySelectorAll('[data-user]').forEach(button => button.onclick = () => userDialog(root, request, actor, users, users.find(u => u.username === button.dataset.user)));
   } catch(error) { root.querySelector('[role=status]').textContent = error.message; }
@@ -25,6 +26,7 @@ function userDialog(root, request, actor, users, account) {
     } else if (role === 'student' && editing) {
       association.innerHTML = `<label class="field">学生 ID<input name="studentId" required maxlength="80" pattern="[a-zA-Z0-9_-]+" value="${escape(account.studentId || account.username)}"><small>用于归属学习记录，修改后将切换到对应学生的数据。</small></label>`;
     } else association.innerHTML = '';
+    if (role === 'student') association.innerHTML += `<label class="field">年级<select name="grade"><option value="">未设置</option>${GRADES.map(grade => `<option value="${grade}" ${grade === account?.grade ? 'selected' : ''}>${grade}</option>`).join('')}</select></label>`;
   }
   form.elements.role.onchange = roleChanged; roleChanged();
   const close = () => { if (busy) return; dialog.close(); dialog.remove(); };

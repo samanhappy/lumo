@@ -4,7 +4,7 @@ import { renderChat } from './platform/chat/page.js';
 import { initializeStorage } from './storage.js';
 import { renderToday } from './platform/tasks/page.js';
 import { student, user, setUser } from './platform/student.js';
-import { learningApps, markAppUsed } from './platform/learning-apps/registry.js';
+import { learningApps, markAppUsed, isAppAvailable } from './platform/learning-apps/registry.js';
 import { icon, navigate, notify, escape } from './ui.js';
 const app = document.querySelector('#app');
 function accountMenu() {
@@ -20,8 +20,9 @@ async function render() {
   app.querySelector('.nav-item.active')?.setAttribute('aria-current','page');
   app.querySelector('#logout').onclick=async()=>{try{await authRequest('/api/auth/logout',{});location.replace('/login')}catch(e){notify(e.message)}};
   if ((entry || path==='/apps') && user.role==='parent') { navigate('/today'); return; }
-  if(entry){try{await markAppUsed(entry,student.id)}catch(e){notify(e.message)}if (!root.isConnected) return; entry.app.render(root,{studentId:student.id,studentName:student.name},path)}
-  else if(path==='/apps')renderApps(root);
+  if(entry && !isAppAvailable(entry,student.grade)) root.innerHTML='<section class="page empty-state"><h1>此应用暂不适用于当前年级</h1><a class="primary" href="/apps">返回应用</a></section>';
+  else if(entry){try{await markAppUsed(entry,student.id)}catch(e){notify(e.message)}if (!root.isConnected) return; entry.app.render(root,{studentId:student.id,studentName:student.name},path)}
+  else if(path==='/apps')renderApps(root,student.grade);
   else if(path==='/chat')renderChat(root);
   else if(path==='/today'||path==='/login')renderToday(root);
   else root.innerHTML='<section class="page empty-state"><h1>这个页面还没有开放</h1><a class="primary" href="/today">返回今日</a></section>';

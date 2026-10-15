@@ -146,3 +146,9 @@ node --input-type=module -e "import {createModels} from '@earendil-works/pi-ai';
 设置 LUMO_VISION_PROVIDER=openai 和 LUMO_VISION_MODEL（pi 目录中支持 image 输入的模型 ID），以及 OPENAI_API_KEY。视觉模型与聊天模型独立配置；deepseek 也可选择，但必须支持 image 输入，否则拒绝调用。Docker Compose 已传递这些变量；本地 `npm run dev` 和 `npm start` 默认读取 `.env`。
 
 图片接口为 POST /api/homework/recognize，要求登录、同源 JSON 请求并校验图片类型与文件签名。图片仅作为数据传给模型，没有业务写入工具；返回条目须符合批量导入限制。识别最长 60 秒，同账号一个请求、总计最多四个并发；取消会中止模型请求。识别失败保留预览并允许手动填写，不会悄悄回退到本地 OCR 或保存部分作业。
+
+## 年级与应用适用范围
+
+管理员在用户管理中创建或编辑学生时可设置年级（一年级至高三），预配置学生账号也可通过 `grade` 设置，例如 `"grade":"初一"`。关联家长读取同一学生的年级。未设置年级的旧账号继续显示全部已启用应用。
+
+在 `src/platform/learning-apps/registry.js` 中为应用设置 `grades`，例如 `grades:['初一','初二','初三']`；空数组或省略表示所有年级。目前不规则过去式保持适用所有年级。列表和页面入口使用同一规则；这是应用推荐范围，不是学习数据的访问权限。更改年级不会删除已有学习记录，刷新页面后生效。
