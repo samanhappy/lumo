@@ -1,6 +1,9 @@
 import { grade6English } from './grade6-english.js';
 import { grade6Words } from './grade6-words.js';
 import { grade6Poetry } from './grade6-poetry.js';
+import { primaryEnglish } from './primary-english.js';
+import { primaryWords } from './primary-words.js';
+import { primaryPoetry } from './primary-poetry.js';
 // Stable IDs preserve learning records when wording is corrected.
 export const courses = [
   { id:'english-vocabulary', name:'英语词汇', icon:'Aa', abilities:{recognize:'看词识义',recall:'看义拼词'}, units:[
@@ -48,10 +51,10 @@ export const courses = [
     ]},
   ]},
 ];
-courses[0].units.push(...grade6English);
-courses[0].notice='六年级已收录译林英语旧版下册8个单元的完整词汇表；上册官方文件链接失效，尚未同步。请核对学校教材版次。其他年级为示例。';
-courses[1].units.push(...grade6Words);
+courses[0].units.push(...primaryEnglish,...grade6English);
+courses[0].notice='已收录译林英语三年级起点旧版三至六年级上下册，共64个单元的词汇表（2012—2014版权版本）；上册来自原教材公开镜像，非出版社直链。一、二年级不属于本套三年级起点教材。未核定为2026新版，请核对学校用书版次。自编示例单独标注。';
+courses[1].units.push(...primaryWords,...grade6Words);
 courses[1].abilities.recognize='读音选词 / 语境填空';
-courses[1].notice='六年级已收录统编语文2019年版上下册完整词语表；教材词表提供读音选词、看拼音写词，不含词义讲解。未核定为2026修订版。其他年级为示例。';
-courses[2].units.push(...grade6Poetry);
-courses[2].notice='六年级已收录统编语文2019年版上下册26首古代诗词（含园地及诵读栏目）；不含现代诗、文言文。未核定为2026修订版。其他年级为示例。';
+courses[1].notice='已收录统编语文一至六年级上下册：一年级完整写字表，二至六年级完整词语表（2016—2019年版）。拼音为项目校订，不含词义讲解。未核定为2026修订版，请核对学校用书版次。自编示例单独标注。';
+courses[2].units.push(...primaryPoetry,...grade6Poetry);
+courses[2].notice='已收录统编语文一至六年级上下册111首古代诗词（2016—2019年版，含园地及诵读、阅读栏目）；不含现代诗、文言文和零散名句。未核定为2026修订版，请核对学校用书版次。自编示例单独标注。';

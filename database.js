@@ -10,6 +10,17 @@ function validateMigration(values) {
 }
 const conflict = () => Object.assign(new Error('数据已在其他页面更新，请刷新后重试。'), { status: 409 });
 
+function mergeCourse(existing, incoming) {
+  const units=existing.units.map(unit=>{
+    const update=incoming.units.find(value=>value.id===unit.id);
+    if (!update) return unit;
+    const ids=new Set(unit.items.map(item=>item.id));
+    return {...unit,items:[...unit.items,...update.items.filter(item=>!ids.has(item.id))]};
+  });
+  const ids=new Set(units.map(unit=>unit.id));
+  return {...existing,notice:incoming.notice ?? existing.notice,units:[...units,...incoming.units.filter(unit=>!ids.has(unit.id))]};
+}
+
 export async function openDatabase(path) {
   if (path === undefined && (process.env.DATABASE_URL || process.env.PGHOST)) return openPostgres();
   path ??= process.env.LUMO_DB_PATH || resolve('data/lumo.sqlite');
@@ -25,7 +36,11 @@ export async function openDatabase(path) {
     importCourses(courses) {
       db.exec('BEGIN');
       try {
-        for (const course of courses) db.prepare('INSERT OR IGNORE INTO textbook_courses VALUES (?,?)').run(course.id,JSON.stringify(course));
+        for (const course of courses) {
+          const row=db.prepare('SELECT value FROM textbook_courses WHERE id=?').get(course.id);
+          const value=row ? mergeCourse(JSON.parse(row.value),course) : course;
+          db.prepare('INSERT INTO textbook_courses VALUES (?,?) ON CONFLICT(id) DO UPDATE SET value=excluded.value').run(course.id,JSON.stringify(value));
+        }
         db.exec('COMMIT');
       } catch(error) { db.exec('ROLLBACK'); throw error; }
     },
@@ -80,7 +95,11 @@ async function openPostgres() {
       const client=await pool.connect();
       try {
         await client.query('BEGIN');
-        for (const course of courses) await client.query('INSERT INTO textbook_courses VALUES ($1,$2::jsonb) ON CONFLICT (id) DO NOTHING',[course.id,JSON.stringify(course)]);
+        for (const course of courses) {
+          await client.query('INSERT INTO textbook_courses VALUES ($1,$2::jsonb) ON CONFLICT (id) DO NOTHING',[course.id,JSON.stringify(course)]);
+          const {rows}=await client.query('SELECT value FROM textbook_courses WHERE id=$1 FOR UPDATE',[course.id]);
+          await client.query('UPDATE textbook_courses SET value=$2::jsonb WHERE id=$1',[course.id,JSON.stringify(mergeCourse(rows[0].value,course))]);
+        }
         await client.query('COMMIT');
       } catch(error) { await client.query('ROLLBACK'); throw error; }
       finally { client.release(); }

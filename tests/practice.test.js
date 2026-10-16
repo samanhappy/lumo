@@ -130,7 +130,7 @@ test('home defaults to student grade and offers an explicit fallback without rel
   const root={innerHTML:'',isConnected:true,querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};
   practiceApps[0].render(root,{studentId:'grade-view',grade:'初一'},'/apps/english-vocabulary');
   assert.match(root.innerHTML,/日常生活/);assert.doesNotMatch(root.innerHTML,/校园用品/);
-  controls['#content-grade'].onchange({target:{value:'五年级'}});
+  controls['#content-grade'].onchange({target:{value:'高三'}});
   assert.match(root.innerHTML,/当前年级暂无内置内容/);
   controls['#all-grades'].onclick();
   assert.match(root.innerHTML,/校园用品/);assert.match(root.innerHTML,/日常生活/);
@@ -139,7 +139,7 @@ test('home defaults to student grade and offers an explicit fallback without rel
 
 test('grade-six textbooks preserve complete checked inventories, sources and known polyphonic readings',()=>{
   const units=course=>course.units.filter(unit=>unit.grade==='六年级');
-  const en=units(english),zh=units(chinese),poems=units(poetry);
+  const en=units(english).filter(unit=>unit.term==='下册'),zh=units(chinese),poems=units(poetry);
   assert.deepEqual(en.map(unit=>unit.items.length),[25,13,7,14,7,23,13,16]);
   assert.equal(zh.filter(unit=>unit.term==='上册').flatMap(unit=>unit.items).length,229);
   assert.equal(zh.filter(unit=>unit.term==='下册').flatMap(unit=>unit.items).length,161);
@@ -158,7 +158,7 @@ test('grade-six textbooks preserve complete checked inventories, sources and kno
   assert.equal(question(chinese,u,item,'recognize').prompt,item.pinyin);
   assert.equal(question(chinese,u,item,'recall').prompt,item.pinyin);
   assert(!question(chinese,u,item,'recall').hint.includes(item.word));
-  assert.match(english.notice,/上册.*尚未同步/);
+  assert.match(english.notice,/上册.*镜像/);
   assert.match(chinese.notice,/2019/);
 });
 

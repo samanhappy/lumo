@@ -22,7 +22,9 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     process.env.DATABASE_URL = url.toString();
     db = await openDatabase();
     await db.health();
+    await db.importCourses([{...courses[0],units:courses[0].units.slice(0,1)}]);
     await db.importCourses(courses);
+    assert.equal((await db.getCourses()).find(course=>course.id===courses[0].id).units.length,courses[0].units.length);
     const textbooks=await db.getCourses();
     await db.importCourses(courses.map(course=>({...course,name:'do not overwrite'})));
     assert.deepEqual(await db.getCourses(),textbooks);
