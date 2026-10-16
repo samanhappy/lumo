@@ -1,0 +1,46 @@
+tests/textbooks.test.js
+  s_25111e53ffe9aa::t_7821f1ce090af2 45-67,94
+  s_25111e53ffe9aa::t_3991ec41d19346 7,68-93
+tests/practice.test.js
+  s_25111e53ffe9aa::t_942b17bed41bda 133,142,161
+tests/postgres.test.js
+  s_25111e53ffe9aa::t_118a36b1187d7f 25,27
+docs/textbook-sources.md
+  s_25111e53ffe9aa::t_c9e2f7d2dc887d 1,3,5,7,9-22,24,26,28,30,32-80
+seeds/textbooks/primary-words.js
+  s_25111e53ffe9aa::t_bba31f75137170 1-1631
+seeds/textbooks/primary-english.js
+  s_25111e53ffe9aa::t_934392923b94f1 5-9,11-76,146-217,293,296-298,302,305-307,311,314-316,320,323-325,329,332,334,339,341,343,348,350,352,355,357,359,361,365,368-370,374,377-379,383,386-388,392,395-397,401,404-406,410,413-415,419,422-424,428,431-433
+  s_25111e53ffe9aa::t_47179eabe8526f 10
+  s_25111e53ffe9aa::t_b0dedb9e3b1b39 1-4,77-145,218-292,294-295,299-301,303-304,308-310,312-313,317-319,321-322,326-328,330-331,333,335-338,340,342,344-347,349,351,353-354,356,358,360,362-364,366-367,371-373,375-376,380-382,384-385,389-391,393-394,398-400,402-403,407-409,411-412,416-418,420-421,425-427,429-430,434-514
+seeds/textbooks/primary-poetry.js
+  s_25111e53ffe9aa::t_c5f4445083c7e6 1-862
+seeds/textbooks/courses.js
+  s_25111e53ffe9aa::t_634ba8f3ad0cc5 4-6,55-56,58-60
+  s_25111e53ffe9aa::t_8c92cfe75976cc 54
+database.js
+  s_25111e53ffe9aa::t_38461da51e9230 13-23,39-43,98-102
+README.md
+  s_25111e53ffe9aa::t_763b088227a481 160,169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "831545973ca9c08118af6bacec800da010299164",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_25111e53ffe9aa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a13e12-5fed-7110-8595-5cd1e12bdd01",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
