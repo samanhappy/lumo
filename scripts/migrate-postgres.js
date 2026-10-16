@@ -18,6 +18,9 @@ try {
   const values = Object.fromEntries(source.prepare('SELECT key,value FROM app_data').all().map(row => [row.key, JSON.parse(row.value)]));
   target = await openDatabase();
   await target.migrate(values);
+  const hasTextbooks=source.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='textbook_courses'").get();
+  const textbooks=hasTextbooks ? source.prepare('SELECT value FROM textbook_courses').all().map(row=>JSON.parse(row.value)) : [];
+  await target.importCourses(textbooks);
   console.log(`迁移完成：检查 ${Object.keys(values).length} 个数据键；目标已有键保留，源 SQLite 文件未删除。`);
 } finally {
   source?.close();

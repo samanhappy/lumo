@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { courses } from '../src/learning-apps/practice/content.js';
+import { courses, setCourses } from '../src/learning-apps/practice/content.js';
+import { courses as seedCourses } from '../seeds/textbooks/courses.js';
+setCourses(structuredClone(seedCourses));
 import { emptyState, validateCourse, question, choices, isCorrect, createSession, updateProgress, submitAnswer, advance, statistics, progressKey } from '../src/learning-apps/practice/domain.js';
 import { practiceApps } from '../src/learning-apps/practice/app.js';
 import { loadState, saveState } from '../src/learning-apps/practice/repository.js';
@@ -185,12 +187,13 @@ test('completed daily work remains available for practice without advancing the 
   assert.equal(updateProgress(before,false,false,today).due,today);
   assert.equal(updateProgress(before,true,true,today).stage,0);
   assert.throws(()=>createSession(english,unit.id,'review','recall',state,today),/没有到期/);
+  for(const progress of Object.values(state.progress)) progress.due='2099-10-16';
   await saveState(english.id,'finished-day',state);
   const controls={'#content-grade':{},'#content-term':{}};
   const root={innerHTML:'',querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};
   practiceApps[0].render(root,{studentId:'finished-day',grade:unit.grade},'/apps/english-vocabulary');
   assert.match(root.innerHTML,new RegExp(`已练习 ${unit.items.length} / ${unit.items.length}`));
-  assert.match(root.innerHTML,/下次复习 2026-10-16/);
+  assert.match(root.innerHTML,/下次复习 2099-10-16/);
 });
 
 
@@ -198,6 +201,9 @@ test('unfinished sessions do not disable units; switching preserves answers and 
   const app=practiceApps[0],student='switch-session';
   await app.start(student,unit.id);
   await saveState(english.id,student,submitAnswer(english,loadState(english.id,student),word.word,today));
+  const saved=loadState(english.id,student);
+  for(const progress of Object.values(saved.progress)) progress.due='2099-10-16';
+  await saveState(english.id,student,saved);
   const previous=loadState(english.id,student);
   const controls={'#content-grade':{},'#content-term':{},'#end-session':{}};
   const root={innerHTML:'',querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};

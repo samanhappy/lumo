@@ -1,3 +1,5 @@
+import { courses as seedCourses } from './seeds/textbooks/courses.js';
+import { validateCourse } from './src/learning-apps/practice/domain.js';
 import http from 'node:http';
 import { createChatService, validateChat, createPhotoService } from './ai.js';
 import { readFile } from 'node:fs/promises';
@@ -7,6 +9,8 @@ import { openDatabase } from './database.js';
 import { createAuth, scopedKey, studentSnapshot } from './auth.js';
 let database;
 try { database = await openDatabase(); } catch { console.error('数据库初始化失败，请检查连接配置与数据库状态。'); process.exit(1); }
+seedCourses.forEach(validateCourse);
+await database.importCourses(seedCourses);
 const auth = createAuth(undefined, database);
 const legacy = await database.snapshot(), imported = {};
 for (const key of ['lumo:daily_task','lumo:student_app','lumo:iv:local-student']) if (legacy[key]) {
@@ -31,6 +35,7 @@ const server = http.createServer(async (req, res) => {
         if (req.method === 'GET' && pathname === '/api/health') { await database.health(); res.end(JSON.stringify({ status: 'ok' })); return; }
         if (req.method === 'GET' && pathname === '/api/auth/me') { res.end(JSON.stringify(await auth.user(req))); return; }
         const user = pathname === '/api/auth/login' ? null : await auth.user(req);
+        if (req.method==='GET' && pathname==='/api/courses') { res.end(JSON.stringify(await database.getCourses())); return; }
         if (pathname === '/api/users' && req.method === 'GET') { res.end(JSON.stringify(await auth.listUsers(req))); return; }
         if (user?.role === 'admin' && !['/api/users','/api/auth/logout'].includes(pathname)) throw Object.assign(new Error('管理员不能访问学生学习接口。'), { status: 403 });
         if (req.method === 'GET' && pathname === '/api/storage') { res.end(JSON.stringify(await studentSnapshot(database, user))); return; }

@@ -1,10 +1,10 @@
 import { courses } from './content.js';
-import { createSession, validateCourse, question, choices, submitAnswer, advance, statistics, progressKey } from './domain.js';
+import { createSession, question, choices, submitAnswer, advance, statistics, progressKey } from './domain.js';
 import { loadState, saveState } from './repository.js';
 import { GRADES } from '../../platform/grades.js';
 import { escape, navigate, notify } from '../../ui.js';
 
-export const practiceApps = courses.map(course => createPracticeApp(validateCourse(course)));
+export const practiceApps = courses.map(course => createPracticeApp(course));
 export function createPracticeApp(course) {
   const base = `/apps/${course.id}`;
   let saving = false;

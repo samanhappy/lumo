@@ -8,6 +8,7 @@
     "start": "node --env-file-if-exists=.env server.js",
     "deploy": "bash scripts/deploy.sh",
     "test": "node --test",
+    "import:textbooks": "node --env-file-if-exists=.env scripts/import-textbooks.js",
     "migrate:postgres": "node scripts/migrate-postgres.js"
   },
   "dependencies": {

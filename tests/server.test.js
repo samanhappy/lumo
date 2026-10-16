@@ -26,7 +26,12 @@ test('direct navigation and refresh serve app pages while private files remain f
     assert.match(response.headers.get('content-type'),/text\/html/);
     assert.match(await response.text(),/<div id="app"/);
   }
-  for(const path of ['/server.js','/.env','/private.sqlite']) {
+  assert.equal((await fetch(`http://127.0.0.1:${port}/api/courses`)).status,401);
+  const login=await fetch(`http://127.0.0.1:${port}/api/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'student',password:'student123'})});
+  const cookie=login.headers.get('set-cookie').split(';')[0];
+  const books=await fetch(`http://127.0.0.1:${port}/api/courses`,{headers:{cookie}});
+  assert.equal(books.status,200);assert.equal((await books.json()).length,3);
+  for(const path of ['/seeds/textbooks/courses.js','/server.js','/.env','/private.sqlite']) {
     assert.equal((await fetch(`http://127.0.0.1:${port}${path}`)).status,403,path);
   }
 });

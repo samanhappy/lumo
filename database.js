@@ -17,9 +17,18 @@ export async function openDatabase(path) {
   mkdirSync(dirname(path), { recursive: true });
   const db = new DatabaseSync(path);
   db.exec('PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS app_data (key TEXT PRIMARY KEY, value TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1)');
+  db.exec('CREATE TABLE IF NOT EXISTS textbook_courses (id TEXT PRIMARY KEY, value TEXT NOT NULL)');
   db.exec('CREATE TABLE IF NOT EXISTS auth_users (id INTEGER PRIMARY KEY, value TEXT NOT NULL, revision INTEGER NOT NULL)');
   db.exec('CREATE TABLE IF NOT EXISTS auth_sessions (token TEXT PRIMARY KEY, username TEXT NOT NULL, credential TEXT NOT NULL, expires BIGINT NOT NULL)');
   return {
+    getCourses() { return db.prepare('SELECT value FROM textbook_courses ORDER BY id').all().map(row=>JSON.parse(row.value)); },
+    importCourses(courses) {
+      db.exec('BEGIN');
+      try {
+        for (const course of courses) db.prepare('INSERT OR IGNORE INTO textbook_courses VALUES (?,?)').run(course.id,JSON.stringify(course));
+        db.exec('COMMIT');
+      } catch(error) { db.exec('ROLLBACK'); throw error; }
+    },
     getUsers() { const row = db.prepare('SELECT value,revision FROM auth_users WHERE id=1').get(); return row && { value: JSON.parse(row.value), revision: row.revision }; },
     saveUsers(value, revision) {
       const result = revision === 0 ? db.prepare('INSERT OR IGNORE INTO auth_users VALUES (1,?,1)').run(JSON.stringify(value)) : db.prepare('UPDATE auth_users SET value=?,revision=revision+1 WHERE id=1 AND revision=?').run(JSON.stringify(value), revision);
@@ -60,11 +69,22 @@ async function openPostgres() {
   pool.on('error', () => console.error('PostgreSQL 空闲连接中断，后续请求将重新连接。'));
   try {
     await pool.query('CREATE TABLE IF NOT EXISTS app_data (key TEXT PRIMARY KEY, value JSONB NOT NULL, revision INTEGER NOT NULL DEFAULT 1)');
+    await pool.query('CREATE TABLE IF NOT EXISTS textbook_courses (id TEXT PRIMARY KEY, value JSONB NOT NULL)');
     await pool.query('CREATE TABLE IF NOT EXISTS auth_users (id INTEGER PRIMARY KEY, value JSONB NOT NULL, revision INTEGER NOT NULL)');
     await pool.query('CREATE TABLE IF NOT EXISTS auth_sessions (token TEXT PRIMARY KEY, username TEXT NOT NULL, credential TEXT NOT NULL, expires BIGINT NOT NULL)');
   }
   catch (error) { await pool.end(); throw error; }
   return {
+    async getCourses() { return (await pool.query('SELECT value FROM textbook_courses ORDER BY id')).rows.map(row=>row.value); },
+    async importCourses(courses) {
+      const client=await pool.connect();
+      try {
+        await client.query('BEGIN');
+        for (const course of courses) await client.query('INSERT INTO textbook_courses VALUES ($1,$2::jsonb) ON CONFLICT (id) DO NOTHING',[course.id,JSON.stringify(course)]);
+        await client.query('COMMIT');
+      } catch(error) { await client.query('ROLLBACK'); throw error; }
+      finally { client.release(); }
+    },
     async getUsers() { return (await pool.query('SELECT value,revision FROM auth_users WHERE id=1')).rows[0]; },
     async saveUsers(value, revision) {
       const result = revision === 0 ? await pool.query('INSERT INTO auth_users VALUES (1,$1::jsonb,1) ON CONFLICT (id) DO NOTHING', [JSON.stringify(value)]) : await pool.query('UPDATE auth_users SET value=$1::jsonb,revision=revision+1 WHERE id=1 AND revision=$2', [JSON.stringify(value), revision]);

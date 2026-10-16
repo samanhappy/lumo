@@ -166,6 +166,6 @@ node --input-type=module -e "import {createModels} from '@earendil-works/pi-ai';
 - 每轮优先到期内容，再加入最多 3 个新条目，初始最多 10 题；错题或使用提示的题在本轮稍后追加重练一次，持续答错保持待复习，不无限追加题目。
 - 每次提交后先保存再更新界面，返回或刷新可恢复当前练习。结束未完成的一轮仍保留已答记录。学生之间和不同应用之间隔离，家长无法提交学习记录。
 
-内容位于 `src/learning-apps/practice/content.js`，按应用→年级/版本/上下册/单元→条目组织；教材清单拆分在同目录的 `grade6-*.js`。新增内容需提供稳定的单元 ID、条目 ID、来源及该题型字段，并通过 `validateCourse` 校验。纠正文本时保留 ID，避免丢失关联进度。应用通过现有注册表接入，`grades:[]` 允许所有年级进入并选择示例内容。
+正式内容保存在数据库 `textbook_courses` 表：PostgreSQL 使用 JSONB，本地 SQLite 使用 JSON；每门课程一条记录，包含版本、来源、排序、单元和词条。前端登录后通过受登录保护的 `GET /api/courses` 加载，JS 不再内置教材。`seeds/textbooks/` 仅用于首次导入，服务器启动自动补入缺失课程，重复启动不会覆盖数据库内容；也可执行 `npm run import:textbooks`。纠正文本时保留单元和词条 ID，避免丢失关联进度。当前尚无教材编辑后台，修改种子文件不会更新已有课程。
 
-学习状态存储在 `student:<学生ID>:lumo:practice:<应用ID>:<学生ID>`，沿用现有 SQLite/PostgreSQL、revision 冲突检查与备份流程。无需新数据库表或依赖。首版不包含教材导入后台、发音评分、手写识别或 AI 判分。
+学习状态存储在 `student:<学生ID>:lumo:practice:<应用ID>:<学生ID>`，沿用现有 SQLite/PostgreSQL、revision 冲突检查与备份流程。教材使用独立表，不混入学生存储；未新增依赖。首版不包含教材导入后台、发音评分、手写识别或 AI 判分。

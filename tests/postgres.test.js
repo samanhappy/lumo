@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createAuth } from '../auth.js';
+import { courses } from '../seeds/textbooks/courses.js';
 import { openDatabase } from '../database.js';
 
 test('PostgreSQL persists data, protects concurrent writes, rolls back batches and imports SQLite', { skip: !process.env.TEST_DATABASE_URL }, async () => {
@@ -21,6 +22,10 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     process.env.DATABASE_URL = url.toString();
     db = await openDatabase();
     await db.health();
+    await db.importCourses(courses);
+    const textbooks=await db.getCourses();
+    await db.importCourses(courses.map(course=>({...course,name:'do not overwrite'})));
+    assert.deepEqual(await db.getCourses(),textbooks);
     assert.equal(await db.getUsers(), undefined);
     await db.saveUsers({test:{name:'Persisted'}}, 0);
     assert.equal((await db.getUsers()).revision, 1);
@@ -39,6 +44,7 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     await assert.rejects(db.migrate({ 'lumo:student_app': { inserted: true }, 'lumo:iv:bad': { invalid: 1n } }), /BigInt/);
     assert.equal((await db.snapshot())['lumo:student_app'], undefined);
     await db.close(); db = await openDatabase();
+    assert.deepEqual(await db.getCourses(),textbooks);
     const restartedAuth = createAuth(undefined, db);
     assert.equal((await restartedAuth.user(request)).username, 'student');
     await restartedAuth.logout(request);
@@ -46,6 +52,7 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     assert.equal((await db.snapshot())['lumo:daily_task'].revision, 2);
     const path = join(dir, 'source.sqlite');
     const source = await openDatabase(path);
+    source.importCourses([{...courses[0],id:'imported-course'}]);
     source.migrate({ 'lumo:daily_task': [], 'lumo:student_app': { imported: true } });
     source.close();
     const bytes = readFileSync(path);
@@ -53,6 +60,7 @@ test('PostgreSQL persists data, protects concurrent writes, rolls back batches a
     for (let i = 0; i < 2; i++) execFileSync(process.execPath, ['scripts/migrate-postgres.js', path], { env: process.env, stdio: 'pipe' });
     const snapshot = await db.snapshot();
     assert.equal(snapshot['lumo:student_app'].value.imported, true);
+    assert((await db.getCourses()).some(course=>course.id==='imported-course'));
     assert.equal(snapshot['lumo:daily_task'].revision, 2);
     assert.deepEqual(readFileSync(path), bytes);
   } finally {

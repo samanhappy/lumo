@@ -1,3 +1,4 @@
+import { initializeCourses } from './learning-apps/practice/content.js';
 import { renderUsers } from './platform/users/page.js';
 import { renderApps } from './platform/learning-apps/page.js';
 import { renderChat } from './platform/chat/page.js';
@@ -47,7 +48,7 @@ async function authRequest(path, body) {
 }
 function showLogin() {
   app.innerHTML = `<main class="login-page"><form class="panel login-card"><a class="logo" href="/login">l<span>u</span>mo<i>✦</i></a><h1>欢迎回来</h1><label class="field">用户名<input name="username" autocomplete="username" required maxlength="40" autofocus></label><label class="field">密码<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label><p class="error" role="alert" id="login-error"></p><button class="primary" type="submit">登录</button></form></main>`;
-  app.querySelector('form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('[type=submit]');button.disabled=true;try{const account=await authRequest('/api/auth/login',Object.fromEntries(new FormData(e.target)));if(account.role !== 'admin') await initializeStorage(account);setUser(account);navigate(account.role === 'admin' ? '/users' : '/today')}catch(error){app.querySelector('#login-error').textContent=error.message}finally{button.disabled=false}};
+  app.querySelector('form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('[type=submit]');button.disabled=true;try{const account=await authRequest('/api/auth/login',Object.fromEntries(new FormData(e.target)));if(account.role !== 'admin') { await initializeStorage(account); if(account.role==='student') await initializeCourses(); }setUser(account);navigate(account.role === 'admin' ? '/users' : '/today')}catch(error){app.querySelector('#login-error').textContent=error.message}finally{button.disabled=false}};
 }
-try { const account=await authRequest('/api/auth/me'); if(account.role !== 'admin') await initializeStorage(account); setUser(account); await render(); }
+try { const account=await authRequest('/api/auth/me'); if(account.role !== 'admin') { await initializeStorage(account); if(account.role==='student') await initializeCourses(); } setUser(account); await render(); }
 catch(error) { if(error.status===401)showLogin();else {app.innerHTML='<main class="page empty-state"><h1>暂时无法读取数据</h1><p id="storage-error"></p><button class="primary" id="retry-storage">重试</button></main>';app.querySelector('#storage-error').textContent=error.message;app.querySelector('#retry-storage').onclick=()=>location.reload();} }
