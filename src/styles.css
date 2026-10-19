@@ -418,35 +418,17 @@ svg {
 .app-icon {
   width:86px;
   height:86px;
-  border-radius:23px;
-  position:relative;
-  background:linear-gradient(135deg,#dcf1d5,#e9e4ff 80%);
   flex-shrink:0;
-  box-shadow:inset 0 0 0 1px #dff1e5
+  border-radius:23px;
+  overflow:hidden
 }
-.app-icon span {
-  position:absolute;
-  display:grid;
-  place-items:center;
-  width:43px;
-  height:52px;
-  font-weight:850;
-  font-size:32px;
-  border-radius:9px;
-  border:3px solid white;
-  box-shadow:0 5px 0 #b6b5df;
-  transform:rotate(-12deg);
-  top:14px;
-  left:13px;
-  color:#279c79;
-  background:#ffed90
+.app-icon svg {
+  display:block;
+  width:100%;
+  height:100%
 }
-.app-icon span+span {
-  left:36px;
-  top:27px;
-  transform:rotate(12deg);
-  color:#7970cf;
-  background:#fff
+.apps-page .app-card + .app-card {
+  margin-top:16px
 }
 .app-info h3 {
   font-size:22px;
@@ -1446,17 +1428,6 @@ input:focus {
 .app-icon {
   width:70px;
   height:70px
-}
-.app-icon span {
-  width:36px;
-  height:44px;
-  font-size:26px;
-  left:7px;
-  top:10px
-}
-.app-icon span+span {
-  left:28px;
-  top:23px
 }
 .app-info {
   flex:1
