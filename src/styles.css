@@ -2422,3 +2422,11 @@ input:focus {
 @media (min-width: 900px) and (max-height: 760px) {
   .pomo-page > .pomo-timer { min-height: 350px; padding-block: 20px; }
 }
+
+.pomo-fruits { border:0; padding:0; margin:18px 0 24px; display:flex; flex-wrap:wrap; gap:8px; }
+.pomo-fruits legend { margin-bottom:10px; font-weight:600; }
+.pomo-fruits label { position:relative; cursor:pointer; }
+.pomo-fruits input { position:absolute; opacity:0; width:1px; height:1px; }
+.pomo-fruits span { display:block; padding:9px 12px; border:1px solid #eaded5; border-radius:12px; }
+.pomo-fruits input:checked + span { background:#fff0e7; border-color:#df7663; color:#a74232; }
+.pomo-fruits input:focus-visible + span { outline:2px solid #7961ed; outline-offset:3px; }

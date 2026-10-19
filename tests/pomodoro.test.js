@@ -50,7 +50,7 @@ test('pomodoro state is database-backed, isolated by student and read-only for p
 test('editing a topic and immediately starting saves both changes and preserves keyboard focus',async()=>{
   const { renderPomodoro }=await import('../src/platform/pomodoro/page.js');
   const memory=new Map();
-  const originals=Object.fromEntries(['localStorage','document','window','setInterval','clearInterval'].map(key=>[key,globalThis[key]]));
+  const originals=Object.fromEntries(['localStorage','document','window','setInterval','clearInterval','FormData'].map(key=>[key,globalThis[key]]));
   const nodes=new Map();
   const node=selector=>{if(!nodes.has(selector))nodes.set(selector,{value:'',style:{},focus(){this.focused=true;},querySelector:node,querySelectorAll:()=>[]});return nodes.get(selector);};
   const root={innerHTML:'',isConnected:true,querySelector:node,querySelectorAll:()=>[]};
@@ -76,6 +76,18 @@ test('editing a topic and immediately starting saves both changes and preserves 
     saved=JSON.parse(memory.get('lumo:pomodoro:ui-regression'));
     assert.equal(saved.topic,'读完一首诗');
     assert.ok(saved.deadline>Date.now());
+    const deadline=saved.deadline;
+    globalThis.FormData=class {
+      *[Symbol.iterator]() { yield* Object.entries({focus:'25',short:'5',long:'15',fruit:'orange',sound:'on'}); }
+      has(name) { return name==='sound'; }
+      get(name) { return name==='fruit'?'orange':null; }
+    };
+    await node('form').onsubmit({preventDefault(){},target:{}});
+    saved=JSON.parse(memory.get('lumo:pomodoro:ui-regression'));
+    assert.equal(saved.fruit,'orange');
+    assert.equal(saved.deadline,deadline,'changing fruit must preserve the running deadline');
+    renderPomodoro(root,{studentId:'ui-regression'});
+    assert.ok(root.innerHTML.includes('value="orange" checked'),'saved fruit must be selected after reopening');
   }finally{for(const [key,value] of Object.entries(originals)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}
 });
 
