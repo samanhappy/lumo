@@ -1,0 +1,57 @@
+src/platform/tasks/page.js
+  s_9f00faa26b2daa::t_9c8acb00496fcb 13
+src/styles.css
+  s_9f00faa26b2daa::t_55ef2204513982 2316-2326
+  s_9f00faa26b2daa::t_c6cf3f742eb64d 1992-2315
+  s_9f00faa26b2daa::t_9c8acb00496fcb 2388-2401
+  s_9f00faa26b2daa::t_9550e049e2fc6a 2387
+  s_9f00faa26b2daa::t_0019ef8afa9d92 2327-2386
+tests/pomodoro.test.js
+  s_9f00faa26b2daa::t_0019ef8afa9d92 55
+  s_9f00faa26b2daa::t_9550e049e2fc6a 80-94
+  s_9f00faa26b2daa::t_9c8acb00496fcb 3,51,63
+  s_9f00faa26b2daa::t_46f851f9629f54 1-2,4-50,52-54,56-62,64-79,95
+src/platform/pomodoro/page.js
+  s_9f00faa26b2daa::t_9c8acb00496fcb 1-83
+database.js
+  s_9f00faa26b2daa::t_b1ab9e56e82bc6 4
+auth.js
+  s_9f00faa26b2daa::t_b1ab9e56e82bc6 91
+README.md
+  s_9f00faa26b2daa::t_c6cf3f742eb64d 172-174,176,178-179
+  s_9f00faa26b2daa::t_6d61552152612b 177
+  s_9f00faa26b2daa::t_9c8acb00496fcb 175
+src/main.js
+  s_9f00faa26b2daa::t_9c8acb00496fcb 1,18-19,21,25,28
+server.js
+  s_9f00faa26b2daa::t_b197e0f1f190a3 91
+src/platform/pomodoro/dial.js
+  s_9f00faa26b2daa::t_2160227e604a79 1-9
+src/platform/pomodoro/domain.js
+  s_9f00faa26b2daa::t_31c6b84902568e 1-35
+tests/apps.test.js
+  s_9f00faa26b2daa::t_cbd28477ac2ffa 19
+tests/server.test.js
+  s_9f00faa26b2daa::t_b1dbaa53683b5f 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0d4eed11fcd2406d87c4af822ccdb89c413156fc",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_9f00faa26b2daa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15434-9595-7850-9a02-eb1084fa3842",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
