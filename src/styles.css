@@ -2399,3 +2399,55 @@ input:focus {
   .today-pomodoro { padding: 9px 10px; gap: 5px; font-size: 12px; }
   .today-pomodoro > svg { display: none; }
 }
+
+/* A quiet timer surface; records stay available on demand. */
+.pomo-page { max-width: 720px; margin-inline: auto; }
+.pomo-page > .pomo-timer { max-width: 520px; margin-inline: auto; padding: 24px; }
+.pomo-page .page-heading { align-items: center; margin-bottom: 20px; }
+.pomo-page .pomo-tomato { margin-block: 8px; }
+.pomo-page .pomo-duration { margin-bottom: 18px; }
+.pomo-page .pomo-duration legend { font-size: 12px; margin-bottom: 8px; }
+.pomo-topic-compact { display: block; max-width: 280px; margin: 0 auto 20px; }
+.pomo-topic-compact input { width: 100%; text-align: center; border: 0; border-bottom: 1px solid #eaded5; border-radius: 0; background: transparent; font-size: 14px; padding: 10px; }
+.pomo-page .pomo-controls { justify-content: center; gap: 20px; }
+.pomo-page .pomo-message:empty { display: none; }
+.pomo-summary { max-width: 520px; margin: 20px auto 0; color: #8c786b; font-size: 13px; }
+.pomo-summary summary { cursor: pointer; text-align: center; padding: 8px; }
+.pomo-summary .pomo-records { margin-top: 16px; }
+@media (max-width: 620px) { .pomo-page > .pomo-timer { padding: 18px 14px; } }
+@media (max-width: 620px) {
+  .pomo-page .page-heading { flex-direction: row; justify-content: space-between; }
+  .pomo-page .pomo-tomato { max-width: 260px; }
+  .pomo-page .pomo-topic-compact { margin-bottom: 14px; }
+}
+
+@media (min-width: 900px) {
+  .pomo-page { max-width: 1080px; }
+  .pomo-page > .pomo-timer {
+    display: grid;
+    grid-template-columns: minmax(280px, 1.1fr) minmax(300px, 1fr);
+    grid-template-rows: 1fr auto auto auto 1fr;
+    column-gap: clamp(24px, 4vw, 64px);
+    max-width: none;
+    padding: 28px 40px;
+    min-height: 420px;
+  }
+  .pomo-page .pomo-tomato {
+    grid-column: 1;
+    grid-row: 1 / 6;
+    align-self: center;
+    width: 100%;
+    max-width: min(360px, calc((100dvh - 240px) * .95));
+    min-width: 230px;
+    margin: 0 auto;
+  }
+  .pomo-page .pomo-tabs { grid-column: 2; grid-row: 1; align-self: end; width: 100%; margin: 0 auto 28px; }
+  .pomo-page .pomo-duration { grid-column: 2; grid-row: 2; width: 100%; margin-bottom: 24px; }
+  .pomo-page .pomo-topic-compact { grid-column: 2; grid-row: 3; width: 100%; margin-bottom: 24px; }
+  .pomo-page .pomo-controls { grid-column: 2; grid-row: 4; }
+  .pomo-page .pomo-message { grid-column: 2; grid-row: 5; align-self: start; }
+  .pomo-page .pomo-summary { max-width: none; margin-top: 16px; }
+}
+@media (min-width: 900px) and (max-height: 760px) {
+  .pomo-page > .pomo-timer { min-height: 350px; padding-block: 20px; }
+}
