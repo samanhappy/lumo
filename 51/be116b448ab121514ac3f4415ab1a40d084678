@@ -1,0 +1,32 @@
+src/styles.css
+  s_9f00faa26b2daa::t_64321abff8bfd2 2418-2422
+  s_9f00faa26b2daa::t_1bd528fcd0a0c2 2423-2453
+  s_9f00faa26b2daa::t_22c65795986965 2402-2417
+README.md
+  s_9f00faa26b2daa::t_d06da184863b39 177
+src/platform/pomodoro/dial.js
+  s_9f00faa26b2daa::t_deb6137a6d935a 7
+src/platform/pomodoro/page.js
+  s_9f00faa26b2daa::t_deb6137a6d935a 31,60,66,77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "51be116b448ab121514ac3f4415ab1a40d084678",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_9f00faa26b2daa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15434-9595-7850-9a02-eb1084fa3842",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
