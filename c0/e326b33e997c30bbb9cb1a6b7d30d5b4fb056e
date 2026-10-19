@@ -1,0 +1,33 @@
+src/platform/pomodoro/page.js
+  s_9f00faa26b2daa::t_58eb8ed70b4dd2 1,31,60
+tests/pomodoro.test.js
+  s_9f00faa26b2daa::t_fc1cd77f999e3f 53,79-90
+src/styles.css
+  s_9f00faa26b2daa::t_590154446ad578 2425-2432
+src/platform/pomodoro/dial.js
+  s_9f00faa26b2daa::t_fc1cd77f999e3f 1
+  s_9f00faa26b2daa::t_3da0e38881c946 10-11
+  s_9f00faa26b2daa::t_58eb8ed70b4dd2 2-9,12
+  s_9f00faa26b2daa::t_b0193c464edc9e 17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c0e326b33e997c30bbb9cb1a6b7d30d5b4fb056e",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_9f00faa26b2daa": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15434-9595-7850-9a02-eb1084fa3842",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
