@@ -16,7 +16,7 @@ test('apps lists enabled apps without reading or showing practice state', () => 
     assert.match(root.innerHTML, /<h1>应用<\/h1>/);
     assert.match(root.innerHTML, /不规则过去式/);
     assert.match(root.innerHTML, /href="\/apps\/irregular-verbs"/);
-    assert.doesNotMatch(root.innerHTML, /词卡学习|闯关练习|拼写测试|错题|进度|继续上次/);
+    assert.doesNotMatch(root.innerHTML, /词卡学习|闯关练习|拼写测试|错题|进度|继续上次|专注番茄钟|apps\/pomodoro/);
   } finally {
     app.getSummary = original;
   }

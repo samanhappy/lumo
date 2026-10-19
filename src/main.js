@@ -1,3 +1,4 @@
+import { renderPomodoro } from './platform/pomodoro/page.js';
 import { initializeCourses } from './learning-apps/practice/content.js';
 import { renderUsers } from './platform/users/page.js';
 import { renderApps } from './platform/learning-apps/page.js';
@@ -14,15 +15,17 @@ function accountMenu() {
 async function render() {
   if (!user) return showLogin();
   if (user.role === 'admin') return renderAdmin();
-  const path=location.pathname.replace(/\/$/,'')||'/today';
+  let path=location.pathname.replace(/\/$/,'')||'/today';
+  if(path==='/apps/pomodoro'){path='/today/pomodoro';history.replaceState({},'',path);}
   const entry=learningApps.find(a=>path===`/apps/${a.code}`||path.startsWith(`/apps/${a.code}/`));
-  app.innerHTML=`<aside class="sidebar"><a class="logo" href="/today" aria-label="Lumo 首页">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a href="/chat" class="nav-item ${path==='/chat'?'active':''}">${icon('assistant')}<span>助手</span></a><a href="/today" class="nav-item ${path==='/today'?'active':''}">${icon('today')}<span>今日</span></a>${user.role==='student'?`<a href="/apps" class="nav-item ${path==='/apps'||entry?'active':''}">${icon('apps')}<span>应用</span></a>`:''}</nav>${accountMenu()}</aside><main id="main" tabindex="-1"></main>`;
+  app.innerHTML=`<aside class="sidebar"><a class="logo" href="/today" aria-label="Lumo 首页">l<span>u</span>mo<i>✦</i></a><nav class="nav-items" aria-label="主导航"><a href="/chat" class="nav-item ${path==='/chat'?'active':''}">${icon('assistant')}<span>助手</span></a><a href="/today" class="nav-item ${(path==='/today'||path==='/today/pomodoro')?'active':''}">${icon('today')}<span>今日</span></a>${user.role==='student'?`<a href="/apps" class="nav-item ${path==='/apps'||entry?'active':''}">${icon('apps')}<span>应用</span></a>`:''}</nav>${accountMenu()}</aside><main id="main" tabindex="-1"></main>`;
   const root=app.querySelector('#main');
   app.querySelector('.nav-item.active')?.setAttribute('aria-current','page');
   app.querySelector('#logout').onclick=async()=>{try{await authRequest('/api/auth/logout',{});location.replace('/login')}catch(e){notify(e.message)}};
-  if ((entry || path==='/apps') && user.role==='parent') { navigate('/today'); return; }
+  if ((entry || path==='/apps' || path==='/today/pomodoro') && user.role==='parent') { navigate('/today'); return; }
   if(entry && !isAppAvailable(entry,student.grade)) root.innerHTML='<section class="page empty-state"><h1>此应用暂不适用于当前年级</h1><a class="primary" href="/apps">返回应用</a></section>';
   else if(entry){try{await markAppUsed(entry,student.id)}catch(e){notify(e.message)}if (!root.isConnected) return; entry.app.render(root,{studentId:student.id,studentName:student.name,grade:student.grade},path)}
+  else if(path==='/today/pomodoro')renderPomodoro(root,{studentId:student.id});
   else if(path==='/apps')renderApps(root,student.grade);
   else if(path==='/chat')renderChat(root);
   else if(path==='/today'||path==='/login')renderToday(root);

@@ -20,7 +20,7 @@ test('direct navigation and refresh serve app pages while private files remain f
     server.once('exit',code=>{clearTimeout(timer);reject(new Error(`server exited: ${code}`));});
     server.stdout.on('data',data=>{if(data.toString().includes('Lumo:')) {clearTimeout(timer);resolve();}});
   });
-  for(const path of ['/apps','/apps','/apps/english-vocabulary','/apps/english-vocabulary/study','/today','/login']) {
+  for(const path of ['/apps','/apps','/apps/english-vocabulary','/apps/english-vocabulary/study','/today','/today/pomodoro','/apps/pomodoro','/login']) {
     const response=await fetch(`http://127.0.0.1:${port}${path}`);
     assert.equal(response.status,200,path);
     assert.match(response.headers.get('content-type'),/text\/html/);

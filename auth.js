@@ -88,7 +88,7 @@ export function createAuth(raw = process.env.LUMO_USERS, store) {
     async logout(req) { const token = this.token(req); if (store && token) await store.deleteSession(digest(token)); else sessions.delete(token); }
   };
 }
-const learningKeys = id => ['lumo:daily_task','lumo:student_app',`lumo:iv:${id}`,...practiceIds.map(appId => practiceKey(appId,id))];
+const learningKeys = id => [`lumo:pomodoro:${id}`,'lumo:daily_task','lumo:student_app',`lumo:iv:${id}`,...practiceIds.map(appId => practiceKey(appId,id))];
 export function scopedKey(user, key, value, writing = false) {
   if (!user.student || user.role === 'admin') throw fail('管理员不能访问学生学习数据。', 403);
   const id = user.student.id;
