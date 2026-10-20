@@ -1,0 +1,35 @@
+src/learning-apps/practice/app.js
+  s_a3551c19f0fa26::t_e1ba5405b53480 63,66
+  s_a3551c19f0fa26::t_68a93cede54c14 5,40,43-49,52-55,57-58,60,62,64-65,69-78,80-81,83,85
+  s_a3551c19f0fa26::t_bbbf7689dbfd42 50-51,79
+  s_a3551c19f0fa26::t_976fc529964ab8 61
+  s_a3551c19f0fa26::t_6c64f08c78493a 68
+  s_a3551c19f0fa26::t_a059a84d1ecb58 56,59,67
+tests/practice.test.js
+  s_a3551c19f0fa26::t_b4df2aeae2b0fb 228-264,269,271-272,277
+  s_a3551c19f0fa26::t_dca4878c71c671 265-268,270,273-276
+src/styles.css
+  s_a3551c19f0fa26::t_c19af344683cd5 2665-2694
+  s_a3551c19f0fa26::t_a059a84d1ecb58 2695-2714
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "affeb7eeef5e0923e4356dc143dac868b08a83e3",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a3551c19f0fa26": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a159a3-4b16-7b61-bfe0-55cb3541432f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
