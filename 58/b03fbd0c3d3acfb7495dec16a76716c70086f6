@@ -1,0 +1,45 @@
+src/styles.css
+  s_1b0397a9fe909d::t_aa11274fe1d472 2574-2623
+  s_1b0397a9fe909d::t_268341971e663b 2555
+  s_1b0397a9fe909d::t_b23aaec3a663ab 2556-2565
+  s_1b0397a9fe909d::t_6de29015bc0e79 2567-2573
+  s_1b0397a9fe909d::t_f3e10569153796 2434-2482,2484-2485,2487-2516,2520-2527,2531-2554
+  s_1b0397a9fe909d::t_f5c5d93668f200 2517-2519
+  s_1b0397a9fe909d::t_686509999c5578 2433,2483,2486,2528-2530
+  s_1b0397a9fe909d::t_808919bd0c41d3 2624-2631
+  s_1b0397a9fe909d::t_6bad7f5b8a81e5 2632-2664
+  s_1b0397a9fe909d::t_37ed90a26bf2c4 2566
+tests/irregular-verbs-study.test.js
+  s_1b0397a9fe909d::t_268341971e663b 84
+  s_1b0397a9fe909d::t_b23aaec3a663ab 81-83,95,102
+  s_1b0397a9fe909d::t_e67e2a9a9d68ed 72-80,85-94,96-101,103-106
+src/learning-apps/irregular-verbs/app.js
+  s_1b0397a9fe909d::t_482097a830abd9 42-45,47-48,50-61
+  s_1b0397a9fe909d::t_268341971e663b 41
+  s_1b0397a9fe909d::t_698d5638f88c83 32-40,46,49,62
+server.js
+  s_1b0397a9fe909d::t_340608bb41c78d 91
+tests/server.test.js
+  s_1b0397a9fe909d::t_0a7d64c81c8afa 29-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "58b03fbd0c3d3acfb7495dec16a76716c70086f6",
+  "prompts": {},
+  "humans": {
+    "h_18676a549cd52a": {
+      "author": "samanhappy <samanhappy@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_1b0397a9fe909d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a15984-a819-7533-8565-33627a7718a7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "samanhappy <samanhappy@gmail.com>"
+    }
+  }
+}
