@@ -225,3 +225,53 @@ test('unfinished sessions do not disable units; switching preserves answers and 
   await app.start(student,english.units[1].id);
   assert.equal(loadState(english.id,student).active.unitId,english.units[1].id);
 });
+
+test('all companion homes expose one primary action and honest empty states',()=>{
+  for(const [index,course] of courses.entries()) {
+    const controls={'#content-grade':{},'#content-term':{},'#content-unit':{},'#ability':{},'#practice-start':{}};
+    const root={innerHTML:'',isConnected:true,querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};
+    practiceApps[index].render(root,{studentId:`home-empty-${index}`,grade:'六年级'},`/apps/${course.id}`);
+    assert.equal((root.innerHTML.match(/class="primary"/g)||[]).length,1);
+    assert.match(root.innerHTML,/还没有学习记录/);
+    assert.match(root.innerHTML,/暂无成绩/);
+    assert.doesNotMatch(root.innerHTML,/id="review-due"/);
+    assert.match(root.innerHTML,/内容与学习模式/);
+    assert.match(root.innerHTML,/教材来源与学习详情/);
+    assert.match(root.innerHTML,/data-ability="recognize"/);
+    assert.match(root.innerHTML,/data-ability="recall"/);
+    assert.doesNotMatch(root.innerHTML,/undefined/);
+  }
+});
+
+test('home resumes actual progress and distinguishes independent first answers from retries',async()=>{
+  const student='home-real-stats',state=begin();
+  const progress={...updateProgress(undefined,false,false,'2020-01-01'),stage:3};
+  state.progress[progressKey(word.id,'recall')]=progress;
+  state.progress['deleted-item:recall']=progress;
+  state.active.index=1;
+  state.active.feedback={correct:false};
+  state.sessions=[{mode:'practice',ability:'recognize',unitId:unit.id,endedAt:new Date().toISOString(),results:[{correct:true,hinted:false,retry:false},{correct:true,hinted:true,retry:false},{correct:true,hinted:false,retry:true}]},{mode:'learn',unitId:unit.id,endedAt:new Date().toISOString(),results:[]}];
+  await saveState(english.id,student,state);
+  const controls={'#content-grade':{},'#content-term':{},'#content-unit':{},'#ability':{},'#review-due':{},'#end-session':{}};
+  const root={innerHTML:'',isConnected:true,querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};
+  practiceApps[0].render(root,{studentId:student},'/apps/english-vocabulary');
+  assert.match(root.innerHTML,/继续学习/);
+  assert.match(root.innerHTML,/aria-valuenow="2"/);
+  assert.match(root.innerHTML,/<strong>1<small> \/ 2/);
+  assert.match(root.innerHTML,/id="review-due"/);
+  assert.equal((root.innerHTML.match(/class="primary"/g)||[]).length,1);
+  assert.match(root.innerHTML,new RegExp(`<strong>1<small> / ${english.units.flatMap(unit=>unit.items).length}`));
+});
+
+test('completed learning recommends a real practice deck rather than restarting all cards',async()=>{
+  const state=emptyState(),student='home-next-practice';
+  state.sessions=[{unitId:unit.id,mode:'learn',ability:'recall',results:[],endedAt:new Date().toISOString()}];
+  await saveState(english.id,student,state);
+  const controls={'#content-grade':{},'#content-term':{},'#content-unit':{},'#ability':{},'#practice-start':{}};
+  const root={innerHTML:'',isConnected:true,querySelector:selector=>controls[selector]??null,querySelectorAll:()=>[]};
+  practiceApps[0].render(root,{studentId:student},'/apps/english-vocabulary');
+  const expected=createSession(english,unit.id,'practice','recall',state).deck.length;
+  assert.match(root.innerHTML,new RegExp(`学习 ${expected}</span>`));
+  assert.match(root.innerHTML,/校园用品 · 看义拼词/);
+  assert.match(root.innerHTML,/aria-valuenow="0"/);
+});
