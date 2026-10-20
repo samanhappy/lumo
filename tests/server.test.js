@@ -26,6 +26,9 @@ test('direct navigation and refresh serve app pages while private files remain f
     assert.match(response.headers.get('content-type'),/text\/html/);
     assert.match(await response.text(),/<div id="app"/);
   }
+  const hero = await fetch(`http://127.0.0.1:${port}/public/irregular-verbs-hero.png`);
+  assert.equal(hero.status, 200);
+  assert.match(hero.headers.get('content-type'), /image\/png/);
   assert.equal((await fetch(`http://127.0.0.1:${port}/api/courses`)).status,401);
   const login=await fetch(`http://127.0.0.1:${port}/api/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'student',password:'student123'})});
   const cookie=login.headers.get('set-cookie').split(';')[0];

@@ -69,3 +69,38 @@ test('form submission advances correct answers, keeps mistakes, focuses new inpu
     globalThis.PopStateEvent = originalEvent;
   }
 });
+
+test('home uses real mastery, latest spelling test and unresolved mistakes without competing CTAs', async () => {
+  const root={innerHTML:'',querySelector(){return {}},querySelectorAll(){return []}};
+  const state={mastery:{1:{mastery_score:75,last_correct:true},2:{mastery_score:50,last_correct:false},999:{mastery_score:100,last_correct:false}},sessions:[
+    {mode:'test',correct_count:6,total_count:10,started_at:'2026-10-18T10:00:00Z',ended_at:'2026-10-18T10:02:00Z'},
+    {mode:'choice',correct_count:9,total_count:10,started_at:'2026-10-19T10:00:00Z',ended_at:'2026-10-19T10:02:00Z'}
+  ],attempts:[{}],active:null};
+  await saveState('home',state);
+  irregularVerbs.render(root,{studentId:'home'},'/apps/irregular-verbs');
+  assert.match(root.innerHTML,/<strong>1<small> \/ 84/);
+  assert.match(root.innerHTML,/<strong>6<small> \/ 10/);
+  assert.match(root.innerHTML,/<strong>1<\/strong><\/dd><dt>待复习单词/);
+  assert.match(root.innerHTML,/上次学习：闯关练习 · 完成 10 题/);
+  assert.equal((root.innerHTML.match(/class="primary"/g)||[]).length,1);
+  assert.equal((root.innerHTML.match(/data-mode=/g)||[]).length,4);
+  assert.doesNotMatch(root.innerHTML,/累计练习|每日|学习路径/);
+});
+
+test('home shows honest empty states and resumes the active mode with completed count', async () => {
+  const root={innerHTML:'',querySelector(){return {}},querySelectorAll(){return []}};
+  await saveState('home-empty',{mastery:{},sessions:[],attempts:[],active:null});
+  irregularVerbs.render(root,{studentId:'home-empty'},'/apps/irregular-verbs');
+  assert.match(root.innerHTML,/开始学习/);
+  assert.match(root.innerHTML,/暂无成绩/);
+  assert.match(root.innerHTML,/还没有学习记录/);
+  assert.doesNotMatch(root.innerHTML,/data-mode="wrong"/);
+  const active=await irregularVerbs.start('home-empty','test');
+  active.index=2; active.results=[{}, {}, {correct:false}];
+  await saveState('home-empty',{...loadState('home-empty'),active});
+  irregularVerbs.render(root,{studentId:'home-empty'},'/apps/irregular-verbs');
+  assert.match(root.innerHTML,/拼写测试，一起加油吧/);
+  assert.match(root.innerHTML,/已作答 3 \/ 10 题/);
+  assert.match(root.innerHTML,/继续学习/);
+  assert.equal((root.innerHTML.match(/class="primary"/g)||[]).length,1);
+});

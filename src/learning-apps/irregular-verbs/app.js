@@ -29,12 +29,37 @@ let saving = false;
 async function safely(action) { if (saving) return; saving = true; try{await action()}catch(e){notify(e.message)}finally{saving=false} }
 function begin(studentId,mode){safely(async()=>{await irregularVerbs.start(studentId,mode);navigate(base+'/study')})}
 function renderHome(root,studentId,state) {
-  const count=mastered(state).length,wrong=wrongWords(state);
-  const days=new Set(state.sessions.map(s=>new Date(s.started_at).toLocaleDateString('zh-CN'))).size;
-  root.innerHTML=`<section class="page app-home"><a class="back-link" href="/apps">‹ 返回应用</a><header class="page-heading"><div><h1>不规则过去式 <span class="sun">✦</span></h1></div></header>
-  ${state.active?`<div class="resume-bar"><span>上次的${labels[state.active.mode]}：${Math.min(state.active.index+1,state.active.deck.length)} / ${state.active.deck.length}</span><a class="primary" href="${base}/study">继续上次练习 ${icon('arrow')}</a></div>`:''}
-  <div class="mode-grid">${Object.entries(labels).map(([mode,title])=>`<button data-mode="${mode}" class="mode-card ${mode==='choice'?'featured':''}" ${mode==='wrong'&&!wrong.length?'disabled':''}><strong>${title}</strong>${icon('arrow')}</button>`).join('')}</div>
-  <div class="stats-grid"><section class="panel stat"><h3>我的进度</h3><div class="progress-ring" style="--progress:${count/WORDS.length*360}deg"><b>${Math.round(count/WORDS.length*100)}<small>%</small></b></div><p>已掌握 ${count} / ${WORDS.length} 个单词</p></section><section class="panel stat"><h3>最近需要复习</h3>${wrong.length?wrong.slice(0,3).map(w=>`<div class="review-pill">↻ <span>${w.base}</span></div>`).join(''):'<p class="stat-empty">暂无错题</p>'}</section><section class="panel stat"><h3>累计练习</h3><div class="big-stat">${days}<small> 天</small></div><p>已完成 ${state.sessions.length} 轮练习</p></section></div></section>`;
+  const count=mastered(state).length,wrong=wrongWords(state),active=state.active;
+  const last=state.sessions.at(-1);
+  const latestTest=state.sessions.findLast(s=>s.mode==='test' && s.total_count>0);
+  const dateLabel=value=>{
+    const date=new Date(value);
+    return Number.isNaN(date.getTime())?'':date.toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+  };
+  const completed=active?Math.min(active.deck.length,active.index+(active.results[active.index]?1:0)):0;
+  const descriptions={learn:'翻开词卡，认识和记忆过去式',choice:'选一选，在练习中巩固记忆',test:'写一写，看看自己记住了多少'};
+  const lastRecord=active?`上次学习：${labels[active.mode]} · 已${active.mode==='learn'?'浏览':'作答'} ${completed} / ${active.deck.length} ${active.mode==='learn'?'张':'题'} · ${dateLabel(active.started_at)}`:last?`上次学习：${labels[last.mode]} · ${last.mode==='learn'?`浏览 ${last.deck.length} 张词卡`:`完成 ${last.total_count} 题`} · ${dateLabel(last.ended_at||last.started_at)}`:'还没有学习记录，从第一张词卡开始吧。';
+  const roundTotal=active?active.deck.length:last?10:WORDS.length;
+  const play='<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4a1.5 1.5 0 0 1 2.3-1.3l12 8a1.5 1.5 0 0 1 0 2.6l-12 8A1.5 1.5 0 0 1 7 20Z"/></svg>';
+  const target='<svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M28 15a12 12 0 1 1-11-11M22 15a6 6 0 1 1-6-5M16 16 28 4m-1 0v5h-5"/></svg>';
+  const star='<svg width="38" height="38" viewBox="0 0 40 40" fill="currentColor" aria-hidden="true"><path d="m20 2 5.5 11.2L38 15l-9 8.8L31 36l-11-5.8L9 36l2-12.2L2 15l12.5-1.8Z"/></svg>';
+  root.innerHTML=`<section class="page app-home iv-home"><a class="back-link" href="/apps">‹ 返回应用</a>
+  <header class="page-heading"><div><h1>不规则过去式 <span class="sun" aria-hidden="true">✦</span></h1><p>每天学一点，轻松掌握 ${WORDS.length} 个单词！</p></div></header>
+  <div class="iv-scene"><img class="iv-illustration" src="/public/irregular-verbs-hero.png" alt="" aria-hidden="true">
+  <section class="iv-focus" aria-labelledby="iv-next-title">
+    <div class="iv-focus-copy"><span class="iv-eyebrow">${target} 本轮学习</span>
+    <h2 id="iv-next-title"><span>${active?'继续':'学习'} ${roundTotal}</span> 个单词</h2>
+    <p>${active?labels[active.mode]:last?'闯关练习':'词卡学习'}，一起加油吧！</p></div>
+    <div class="iv-progress"><div class="iv-track" role="progressbar" aria-label="本轮学习进度" aria-valuemin="0" aria-valuemax="${roundTotal}" aria-valuenow="${completed}"><i style="width:${completed/roundTotal*100}%"></i></div><span class="iv-round-count"><b>${completed}</b> / ${roundTotal}</span></div>
+    <div class="iv-start">${active?`<a id="iv-start" class="primary" href="${base}/study">${play} 继续学习</a>`:`<button id="iv-start" class="primary">${play} 开始学习</button>`}<p class="iv-last">${lastRecord}</p></div>
+  </section></div>
+  <dl class="iv-summary">
+    <div class="iv-mastery"><span class="iv-stat-icon">${icon('book')}</span><div><dd><strong>${count}<small> / ${WORDS.length}</small></strong></dd><dt>已掌握单词</dt><div class="iv-mini-track" aria-hidden="true"><i style="width:${count/WORDS.length*100}%"></i></div></div></div>
+    <div class="iv-test"><span class="iv-stat-icon">${target}</span><div><dd>${latestTest?`<strong>${latestTest.correct_count}<small> / ${latestTest.total_count}</small></strong>`:'<strong class="iv-empty">暂无成绩</strong>'}</dd><dt>最近测试成绩</dt><div class="iv-mini-track" aria-hidden="true"><i style="width:${latestTest?latestTest.correct_count/latestTest.total_count*100:0}%"></i></div></div></div>
+    <div class="iv-review-stat"><span class="iv-stat-icon">${star}</span><div><dd><strong>${wrong.length}</strong></dd><dt>待复习单词</dt></div>${wrong.length?`<button class="iv-review" data-mode="wrong" aria-label="复习错题">${icon('arrow')}</button>`:''}</div>
+  </dl>
+  <details class="iv-modes"><summary>学习模式 <span>词卡学习 · 闯关练习 · 拼写测试</span></summary><div class="iv-mode-grid">${['learn','choice','test'].map((mode,index)=>`<button data-mode="${mode}" class="iv-mode"><span class="iv-mode-icon" aria-hidden="true">${icon(['book','check','edit'][index])}</span><span><strong>${labels[mode]}</strong><small>${descriptions[mode]}</small></span>${icon('arrow')}</button>`).join('')}</div></details></section>`;
+  if(!active)root.querySelector('#iv-start').onclick=e=>{e.preventDefault();begin(studentId,last?'choice':'learn')};
   root.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{
     if(!state.active){begin(studentId,b.dataset.mode);return}
     const dialog=document.createElement('dialog');dialog.className='task-dialog';dialog.innerHTML=`<h2>开始新的练习？</h2><p>新练习会替换未完成的这一轮，已答题的进度会保留。</p><div class="dialog-actions"><button class="secondary" id="keep-session">继续上次</button><button class="primary" id="new-session">开始新练习</button></div>`;root.append(dialog);dialog.showModal();dialog.onclose=()=>dialog.remove();dialog.querySelector('#keep-session').onclick=()=>{dialog.close();navigate(base+'/study')};dialog.querySelector('#new-session').onclick=()=>{dialog.close();begin(studentId,b.dataset.mode)};
